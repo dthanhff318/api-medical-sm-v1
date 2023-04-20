@@ -2,8 +2,6 @@ const mongoose = require("mongoose");
 const autoIncrement = require("mongoose-auto-increment");
 const { toJSON } = require("./plugin/toJSON.plugin");
 
-autoIncrement.initialize(mongoose.connection);
-
 const departmentSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -13,8 +11,8 @@ const departmentSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  owner: {
-    type: [String],
+  member: {
+    type: [Number],
     default: [],
     ref: "User",
   },
@@ -22,15 +20,22 @@ const departmentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  owner: {
+    type: Number,
+    ref: "User",
+    default: null,
+  },
 });
-// departmentSchema.plugin(autoIncrement.plugin, "User");
-// departmentSchema.plugin(autoIncrement.plugin, "User", {
-//   model: "User",
-//   field: "_id",
-//   startAt: 1,
-// });
+
+autoIncrement.initialize(mongoose.connection);
 departmentSchema.plugin(toJSON);
 
-const User = mongoose.model("Department", departmentSchema);
+departmentSchema.plugin(autoIncrement.plugin, "Department", {
+  model: "Department",
+  field: "_id",
+  startAt: 1,
+});
 
-module.exports = User;
+const Department = mongoose.model("Department", departmentSchema);
+
+module.exports = Department;

@@ -1,11 +1,13 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/users.model");
+const Department = require("../models/department.model");
 const { HTTPStatusCode } = require("../constants");
 
 const userController = {
   createUser: async (req, res) => {
     try {
       const salt = await bcrypt.genSalt(10);
+      const idDepartment = req.body.department;
       const hashedPassword = await bcrypt.hash(req.body.password, salt);
       const checkUsername = await User.findOne({ username: req.body.username });
       if (checkUsername) {
@@ -18,6 +20,9 @@ const userController = {
         password: hashedPassword,
       });
       const user = await newUser.save();
+      await Department.findByIdAndUpdate(idDepartment, {
+        $push: { member: user.id },
+      });
       return res.status(HTTPStatusCode.OK).json(user);
     } catch (err) {
       console.log(err);
@@ -27,7 +32,7 @@ const userController = {
   getUsers: async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
     const calculatePage = (page - 1) * limit;
-    const users = await User.find().skip(calculatePage).limit(limit);
+    const users = await User.find().skip(calculatePage).limit(Number(limit));
     return res.status(HTTPStatusCode.OK).json(users);
   },
   deleteUser: async (req, res) => {

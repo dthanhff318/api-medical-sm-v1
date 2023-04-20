@@ -22,16 +22,15 @@ const userSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    required: true,
+    default: null,
   },
 });
-// userSchema.plugin(autoIncrement.plugin, "User");
-// userSchema.plugin(autoIncrement.plugin, "User", {
-//   model: "User",
-//   field: "_id",
-//   startAt: 1,
-// });
 userSchema.plugin(toJSON);
+userSchema.plugin(autoIncrement.plugin, "User", {
+  model: "User",
+  field: "_id",
+  startAt: 1,
+});
 
 const User = mongoose.model("User", userSchema);
 
