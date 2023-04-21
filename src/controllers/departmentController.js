@@ -1,4 +1,5 @@
 const Department = require("../models/department.model");
+const User = require("../models/users.model");
 const { HTTPStatusCode } = require("../constants");
 
 const departmentController = {
@@ -59,6 +60,10 @@ const departmentController = {
       const { departmentId } = req.params;
       const delDepart = await Department.findByIdAndDelete(departmentId, {
         returnOriginal: true,
+      });
+      // Delete all user in this department
+      await User.deleteMany({
+        _id: { $in: delDepart.member },
       });
       return res.status(HTTPStatusCode.OK).json(delDepart);
     } catch (err) {

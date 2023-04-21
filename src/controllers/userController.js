@@ -40,6 +40,12 @@ const userController = {
     const delUser = await User.findByIdAndDelete(userId, {
       returnOriginal: true,
     });
+    await Department.updateOne(
+      { _id: delUser.department },
+      {
+        $pull: { member: delUser.id },
+      }
+    );
     return res.status(HTTPStatusCode.OK).json(delUser);
   },
 };

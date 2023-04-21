@@ -8,17 +8,14 @@ const userSchema = new mongoose.Schema({
   displayName: {
     type: String,
     required: true,
-    maxlength: 40,
   },
   password: {
     type: String,
     required: true,
-    minlength: 6,
   },
   username: {
     type: String,
     required: true,
-    minlength: 6,
   },
   department: {
     type: String,
