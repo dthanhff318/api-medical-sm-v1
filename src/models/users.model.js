@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
 });
 userSchema.plugin(toJSON);
 userSchema.plugin(autoIncrement.plugin, "User", {
