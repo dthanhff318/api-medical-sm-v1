@@ -21,7 +21,15 @@ const authControllers = {
       if (!checkPw) {
         return res.status(HTTPStatusCode.BAD_REQUEST).json("Mat khau sai");
       }
-      return res.status(200).json("okay");
+      const dataUser = {
+        id: findUser.id,
+        displayName: findUser.displayName,
+        isAdmin: findUser.isAdmin,
+        department: findUser.department,
+      };
+      const accessToken = genAccessToken(dataUser);
+      const refreshToken = genRefreshToken(dataUser);
+      return res.status(200).json({ ...dataUser, accessToken, refreshToken });
     } catch (err) {
       console.log(err);
     }
@@ -39,6 +47,7 @@ const authControllers = {
       }
       const newUser = new User({
         ...req.body,
+        isAdmin: req.body.isAdmin,
         password: hashedPassword,
       });
       const user = await newUser.save();
