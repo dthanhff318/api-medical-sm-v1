@@ -1,8 +1,7 @@
 const express = require("express");
-const authControllers = require("../controllers/authController");
+const biddingController = require("../controllers/biddingController");
 const biddingRoute = express.Router();
 
-biddingRoute.post("/update", authControllers.login);
-biddingRoute.post("/refresh", authControllers.refreshToken);
+biddingRoute.post("/update", biddingController.updateBiddingList);
 
 module.exports = biddingRoute;
