@@ -18,8 +18,8 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   department: {
-    type: String,
-    default: null,
+    type: Number,
+    default: undefined,
   },
   isAdmin: {
     type: Boolean,

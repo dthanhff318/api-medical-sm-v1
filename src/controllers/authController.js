@@ -57,6 +57,16 @@ const authControllers = {
       return res.status(HTTPStatusCode.OK).json(err);
     }
   },
+  // Get auth
+  checkAuth: async (req, res) => {
+    try {
+      const rawData = await decodeToken(req.body.refreshToken, false);
+      return res.status(HTTPStatusCode.OK).json(rawData.data);
+    } catch (err) {
+      console.log(err);
+      return res.status(HTTPStatusCode.OK).json(err);
+    }
+  },
   // refresh token
   refreshToken: async (req, res) => {
     try {

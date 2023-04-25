@@ -10,7 +10,7 @@ const departmentSchema = new mongoose.Schema({
   },
   location: {
     type: String,
-    default: null,
+    default: undefined,
   },
   member: {
     type: [Number],
@@ -24,7 +24,7 @@ const departmentSchema = new mongoose.Schema({
   owner: {
     type: Number,
     ref: "User",
-    default: null,
+    default: undefined,
   },
 });
 
