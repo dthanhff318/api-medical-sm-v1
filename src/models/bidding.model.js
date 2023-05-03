@@ -28,7 +28,7 @@ const biddingSchema = new mongoose.Schema({
     required: true,
   },
   company: {
-    type: String,
+    type: Number,
     required: true,
   },
   country: {
@@ -40,7 +40,7 @@ const biddingSchema = new mongoose.Schema({
     required: true,
   },
   yearBidding: {
-    type: String,
+    type: Number,
     required: true,
   },
   codeBidding: {
