@@ -50,16 +50,16 @@ const biddingController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
-  findBidding: async (req, res) => {
+  getBiddingWithSupplier: async (req, res) => {
     try {
-      const { q } = req.query;
+      const idSupplier = req.params.id;
       const findList = await Bidding.find({
-        name: { $regex: q, $options: "i" },
+        company: idSupplier,
       });
       return res.status(HTTPStatusCode.OK).json(findList);
     } catch (err) {
       console.log(err);
-      // return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
 };

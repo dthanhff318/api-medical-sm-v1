@@ -1,4 +1,3 @@
-const User = require("../models/users.model");
 const { HTTPStatusCode } = require("../constants");
 const Supplier = require("../models/supplier.model");
 
