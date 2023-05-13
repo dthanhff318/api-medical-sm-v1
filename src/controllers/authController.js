@@ -24,7 +24,7 @@ const authControllers = {
       const dataUser = {
         id: findUser.id,
         displayName: findUser.displayName,
-        isAdmin: findUser.isAdmin,
+        role: findUser.role,
         department: findUser.department,
       };
       const accessToken = genAccessToken(dataUser);
@@ -37,6 +37,7 @@ const authControllers = {
   // register
   register: async (req, res) => {
     try {
+      console.log(req.body);
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(req.body.password, salt);
       const checkUsername = await User.findOne({ username: req.body.username });
@@ -47,7 +48,7 @@ const authControllers = {
       }
       const newUser = new User({
         ...req.body,
-        isAdmin: req.body.isAdmin,
+        role: req.body.role,
         password: hashedPassword,
       });
       const user = await newUser.save();

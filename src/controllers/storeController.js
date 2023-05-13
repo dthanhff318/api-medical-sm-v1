@@ -38,6 +38,16 @@ const storeController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
+  deleteOneSupply: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Store.findByIdAndDelete(id);
+      return res.status(HTTPStatusCode.OK).json();
+    } catch (err) {
+      console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
 };
 
 module.exports = storeController;

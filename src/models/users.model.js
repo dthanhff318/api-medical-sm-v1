@@ -21,9 +21,11 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: undefined,
   },
-  isAdmin: {
-    type: Boolean,
-    default: false,
+  role: {
+    type: String,
+    enum: ["admin", "user"],
+    default: "user",
+    required: true,
   },
 });
 userSchema.plugin(toJSON);
