@@ -19,7 +19,7 @@ const serviceController = {
         department: totalDepartment,
         supplier: totalSupplier,
       };
-      return res.status(HTTPStatusCode.OK).json(totalSupplyExpired);
+      return res.status(HTTPStatusCode.OK).json(response);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
