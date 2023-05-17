@@ -26,7 +26,17 @@ const departmentController = {
           model: "User",
           select: "displayName",
         });
-      return res.status(HTTPStatusCode.OK).json(departments);
+      const totalResults = await Department.countDocuments({});
+      const totalPages = Math.ceil(totalResults / limit);
+      return res.status(HTTPStatusCode.OK).json({
+        results: departments,
+        pagination: {
+          totalResults,
+          totalPages,
+          limit: Number(limit),
+          page: Number(page),
+        },
+      });
     } catch (err) {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
