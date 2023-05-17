@@ -8,8 +8,20 @@ const planSchema = new mongoose.Schema({
     required: true,
     ref: "Department",
   },
-  data: {
-    type: [Number],
+  typePlan: {
+    type: Number,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  note: {
+    type: String,
+    default: "",
+  },
+  planList: {
+    type: mongoose.Schema.Types.Mixed,
     required: true,
     ref: "Bidding",
   },

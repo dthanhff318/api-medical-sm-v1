@@ -3,7 +3,7 @@ const departmentController = require("../controllers/departmentController");
 const { verifyToken } = require("../middlewares/index");
 const departmentRoute = express.Router();
 
-departmentRoute.get("/", verifyToken, departmentController.getDepartments);
+departmentRoute.get("/", departmentController.getDepartments);
 departmentRoute.get("/all", departmentController.getAllDepartment);
 departmentRoute.get("/:idDepartment", departmentController.getDetailDepartment);
 departmentRoute.post("/", departmentController.createDepartment);

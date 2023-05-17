@@ -5,7 +5,18 @@ const planController = {
   sendPlan: async (req, res) => {
     try {
       const data = req.body;
-      return res.status(HTTPStatusCode.OK).json(data);
+      const newPlan = new Plan(data);
+      const planRes = await newPlan.save();
+      return res.status(HTTPStatusCode.OK).json(planRes);
+    } catch (err) {
+      console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
+  getPlans: async (req, res) => {
+    try {
+      const listPlans = await Plan.find({});
+      return res.status(HTTPStatusCode.OK).json(listPlans);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
