@@ -15,7 +15,8 @@ const planController = {
   },
   getPlans: async (req, res) => {
     try {
-      const listPlans = await Plan.find({});
+      const { department, typePlan } = req.query;
+      const listPlans = await Plan.find({ department, typePlan });
       return res.status(HTTPStatusCode.OK).json(listPlans);
     } catch (err) {
       console.log(err);

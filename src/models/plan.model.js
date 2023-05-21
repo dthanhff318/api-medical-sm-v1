@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const autoIncrement = require("mongoose-auto-increment");
 const { toJSON } = require("./plugin/toJSON.plugin");
+const { required } = require("joi");
 
 const planSchema = new mongoose.Schema({
   department: {
@@ -24,6 +25,10 @@ const planSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed,
     required: true,
     ref: "Bidding",
+  },
+  createdTime: {
+    type: String,
+    required: true,
   },
 });
 
