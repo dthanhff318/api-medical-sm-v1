@@ -4,8 +4,7 @@ const Store = require("../models/store.model");
 const storeController = {
   getSupplyFromStore: async (req, res) => {
     try {
-      const { q = "" } = req.query;
-      const { page = 1, limit = 10 } = req.query;
+      const { q = "", page = 1, limit = 10 } = req.query;
       const calculatePage = (page - 1) * limit;
       const storeSupply = await Store.find({
         name: { $regex: q, $options: "i" },
@@ -17,7 +16,17 @@ const storeController = {
           model: "Supplier",
           select: "name",
         });
-      return res.status(HTTPStatusCode.OK).json(storeSupply);
+      const totalResults = await Store.countDocuments({});
+      const totalPages = Math.ceil(totalResults / limit);
+      return res.status(HTTPStatusCode.OK).json({
+        results: storeSupply,
+        pagination: {
+          totalResults,
+          totalPages,
+          limit: Number(limit),
+          page: Number(page),
+        },
+      });
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
