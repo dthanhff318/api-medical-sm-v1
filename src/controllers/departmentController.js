@@ -1,4 +1,5 @@
 const Department = require("../models/department.model");
+const StoreDepart = require("../models/storeDepart.model");
 const User = require("../models/users.model");
 const { HTTPStatusCode } = require("../constants");
 
@@ -7,6 +8,11 @@ const departmentController = {
     try {
       const newDepartment = new Department(req.body);
       const departmentCreated = await newDepartment.save();
+      const createdStore = new StoreDepart({
+        department: departmentCreated.id,
+        data: [],
+      });
+      await createdStore.save();
       return res.status(HTTPStatusCode.OK).json(departmentCreated);
     } catch (err) {
       console.log(err);
