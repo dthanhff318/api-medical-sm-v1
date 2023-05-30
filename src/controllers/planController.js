@@ -65,16 +65,16 @@ const planController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
-  acceptPlan: async (req, res) => {
+  expectPlan: async (req, res) => {
     try {
       const { id } = req.params;
-      const { planList } = req.body;
+      const { planList } = await Plan.findById(id);
       // Calculated quantity supply in Store
       for (const supply of planList) {
-        const { id, quantityExpect } = supply;
+        const { id, quantity } = supply;
         const storeSupply = await Store.findById(id);
-        const calculatedQuantity = storeSupply.quantity - quantityExpect;
-        if (calculatedQuantity < 0 || quantityExpect < 0) {
+        const calculatedQuantity = storeSupply.quantity - quantity;
+        if (calculatedQuantity < 0 || quantity < 0) {
           return res
             .status(HTTPStatusCode.BAD_REQUEST)
             .json("Count of supply in store is less than expected");
@@ -105,14 +105,14 @@ const planController = {
             x.supply === e.id
               ? {
                   ...x,
-                  quantity: Number(x.quantity) + Number(e.quantityExpect),
+                  quantity: Number(x.quantity) + Number(e.quantity),
                 }
               : x
           );
         } else {
           storeDepartmentData.push({
             supply: e.id,
-            quantity: e.quantityExpect,
+            quantity: e.quantity,
           });
         }
       });
@@ -121,6 +121,67 @@ const planController = {
         { data: storeDepartmentData }
       );
       return res.status(HTTPStatusCode.OK).json(planAccepted);
+    } catch (err) {
+      console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
+  refundPlan: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { planList } = req.body;
+      // Calculated quantity supply in Store
+      // for (const supply of planList) {
+      //   const { id, quantityExpect } = supply;
+      //   const storeSupply = await Store.findById(id);
+      //   const calculatedQuantity = storeSupply.quantity - quantityExpect;
+      //   if (calculatedQuantity < 0 || quantityExpect < 0) {
+      //     return res
+      //       .status(HTTPStatusCode.BAD_REQUEST)
+      //       .json("Count of supply in store is less than expected");
+      //   }
+      //   await Store.findByIdAndUpdate(id, { quantity: calculatedQuantity });
+      // }
+      // Update status of plan
+      // const planAccepted = await Plan.findByIdAndUpdate(
+      //   id,
+      //   {
+      //     isAccepted: true,
+      //   },
+      //   { new: true }
+      // );
+      // Calculated quantity supply in Store Department
+      // const storeDepartment = await StoreDepart.findOne({
+      //   department: planAccepted.department,
+      // });
+
+      // Update supple in store department
+      // let storeDepartmentData = [...storeDepartment.data];
+      // planList.forEach((e) => {
+      //   const supplyAvailable = storeDepartmentData.find(
+      //     (i) => i.supply === e.id
+      //   );
+      //   if (supplyAvailable) {
+      //     storeDepartmentData = storeDepartmentData.map((x) =>
+      //       x.supply === e.id
+      //         ? {
+      //             ...x,
+      //             quantity: Number(x.quantity) + Number(e.quantityExpect),
+      //           }
+      //         : x
+      //     );
+      //   } else {
+      //     storeDepartmentData.push({
+      //       supply: e.id,
+      //       quantity: e.quantityExpect,
+      //     });
+      //   }
+      // });
+      // await StoreDepart.findOneAndUpdate(
+      //   { department: planAccepted.department },
+      //   { data: storeDepartmentData }
+      // );
+      return res.status(HTTPStatusCode.OK).json("planAccepted");
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
