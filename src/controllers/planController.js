@@ -11,7 +11,7 @@ const planController = {
       const newPlan = new Plan(data);
       const planRes = await newPlan.save();
       const newNotiSent = new Noti({
-        for: "admin",
+        notiFor: "admin",
         department: data.department,
         status: "sent",
         createdTime: data.createdTime,
@@ -41,6 +41,12 @@ const planController = {
   getPlanDetail: async (req, res) => {
     try {
       const { id } = req.params;
+      const existPlan = await Plan.findById(id);
+      if (!existPlan) {
+        return res
+          .status(HTTPStatusCode.NOT_FOUND)
+          .json("Can not found ticket");
+      }
       const findPlan = await Plan.findById(id).populate({
         path: "department",
         model: "Department",
@@ -74,122 +80,172 @@ const planController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
-  expectPlan: async (req, res) => {
+  acceptPlan: async (req, res) => {
     try {
       const { id } = req.params;
-      const { planList } = await Plan.findById(id);
-      // Calculated quantity supply in Store
-      for (const supply of planList) {
-        const { id, quantity } = supply;
-        const storeSupply = await Store.findById(id);
-        const calculatedQuantity = storeSupply.quantity - quantity;
-        if (calculatedQuantity < 0 || quantity < 0) {
+      const { planList, type, department } = await Plan.findById(id);
+      if (type === 2) {
+        // Calculated quantity supply in Store
+        for (const supply of planList) {
+          const { id, quantity } = supply;
+          const storeSupply = await Store.findById(id);
+          const calculatedQuantity = storeSupply.quantity - quantity;
+          if (calculatedQuantity < 0 || quantity < 0) {
+            return res
+              .status(HTTPStatusCode.BAD_REQUEST)
+              .json("Count of supply in store is less than expected");
+          }
+          await Store.findByIdAndUpdate(id, { quantity: calculatedQuantity });
+        }
+        // Update status of plan
+        const planAccepted = await Plan.findByIdAndUpdate(
+          id,
+          {
+            isAccepted: true,
+          },
+          { new: true }
+        );
+        // Calculated quantity supply in Store Department
+        const storeDepartment = await StoreDepart.findOne({
+          department: planAccepted.department,
+        });
+        // Update supple in store department
+        let storeDepartmentData = [...storeDepartment.data];
+        planList.forEach((e) => {
+          const supplyAvailable = storeDepartmentData.find(
+            (i) => i.supply === e.id
+          );
+          if (supplyAvailable) {
+            storeDepartmentData = storeDepartmentData.map((x) =>
+              x.supply === e.id
+                ? {
+                    ...x,
+                    quantity: Number(x.quantity) + Number(e.quantity),
+                  }
+                : x
+            );
+          } else {
+            storeDepartmentData.push({
+              supply: e.id,
+              quantity: e.quantity,
+            });
+          }
+        });
+        await StoreDepart.findOneAndUpdate(
+          { department: planAccepted.department },
+          { data: storeDepartmentData }
+        );
+        return res.status(HTTPStatusCode.OK).json(planAccepted);
+      }
+      if (type === 4) {
+        // Calculated quantity supply in Store Department
+        const storeDepartment = await StoreDepart.findOne({
+          department,
+        });
+
+        // Update supply in store department
+        let storeDepartmentData = [...storeDepartment.data];
+        planList.forEach((e) => {
+          storeDepartmentData = storeDepartmentData.map((x) => {
+            if (x.supply === e.id) {
+              return {
+                ...x,
+                quantity: Number(x.quantity) - Number(e.quantity),
+              };
+            }
+            return x;
+          });
+        });
+        const checkValid = storeDepartmentData.every((e) => e.quantity >= 0);
+        if (!checkValid) {
           return res
             .status(HTTPStatusCode.BAD_REQUEST)
-            .json("Count of supply in store is less than expected");
+            .json(
+              "Count of supply want to refund bigger than quantity in store"
+            );
         }
-        await Store.findByIdAndUpdate(id, { quantity: calculatedQuantity });
-      }
-      // Update status of plan
-      const planAccepted = await Plan.findByIdAndUpdate(
-        id,
-        {
-          isAccepted: true,
-        },
-        { new: true }
-      );
-      // Calculated quantity supply in Store Department
-      const storeDepartment = await StoreDepart.findOne({
-        department: planAccepted.department,
-      });
-
-      // Update supple in store department
-      let storeDepartmentData = [...storeDepartment.data];
-      planList.forEach((e) => {
-        const supplyAvailable = storeDepartmentData.find(
-          (i) => i.supply === e.id
+        // Calculated quantity supply in Store
+        for (const supply of planList) {
+          const { id, quantity } = supply;
+          const storeSupply = await Store.findById(id);
+          const calculatedQuantity = storeSupply.quantity + quantity;
+          await Store.findByIdAndUpdate(id, { quantity: calculatedQuantity });
+        }
+        // Update status of plan
+        const planAccepted = await Plan.findByIdAndUpdate(
+          id,
+          {
+            isAccepted: true,
+          },
+          { new: true }
         );
-        if (supplyAvailable) {
-          storeDepartmentData = storeDepartmentData.map((x) =>
-            x.supply === e.id
-              ? {
-                  ...x,
-                  quantity: Number(x.quantity) + Number(e.quantity),
-                }
-              : x
-          );
-        } else {
-          storeDepartmentData.push({
-            supply: e.id,
-            quantity: e.quantity,
-          });
-        }
-      });
-      await StoreDepart.findOneAndUpdate(
-        { department: planAccepted.department },
-        { data: storeDepartmentData }
-      );
-      return res.status(HTTPStatusCode.OK).json(planAccepted);
+
+        await StoreDepart.findOneAndUpdate(
+          { department: planAccepted.department },
+          { data: storeDepartmentData }
+        );
+        return res.status(HTTPStatusCode.OK).json(planAccepted);
+      }
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
-  refundPlan: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { typePlan, planList, department } = await Plan.findById(id);
+  // refundPlan: async (req, res) => {
+  //   try {
+  //     const { id } = req.params;
+  //     const { typePlan, planList, department } = await Plan.findById(id);
 
-      // Calculated quantity supply in Store Department
-      const storeDepartment = await StoreDepart.findOne({
-        department,
-      });
+  //     // Calculated quantity supply in Store Department
+  //     const storeDepartment = await StoreDepart.findOne({
+  //       department,
+  //     });
 
-      // Update supply in store department
-      let storeDepartmentData = [...storeDepartment.data];
-      planList.forEach((e) => {
-        storeDepartmentData = storeDepartmentData.map((x) => {
-          if (x.supply === e.id) {
-            return {
-              ...x,
-              quantity: Number(x.quantity) - Number(e.quantity),
-            };
-          }
-          return x;
-        });
-      });
-      const checkValid = storeDepartmentData.every((e) => e.quantity >= 0);
-      if (!checkValid) {
-        return res
-          .status(HTTPStatusCode.BAD_REQUEST)
-          .json("Count of supply want to refund bigger than quantity in store");
-      }
-      // Calculated quantity supply in Store
-      for (const supply of planList) {
-        const { id, quantity } = supply;
-        const storeSupply = await Store.findById(id);
-        const calculatedQuantity = storeSupply.quantity + quantity;
-        await Store.findByIdAndUpdate(id, { quantity: calculatedQuantity });
-      }
-      // Update status of plan
-      const planAccepted = await Plan.findByIdAndUpdate(
-        id,
-        {
-          isAccepted: true,
-        },
-        { new: true }
-      );
+  //     // Update supply in store department
+  //     let storeDepartmentData = [...storeDepartment.data];
+  //     planList.forEach((e) => {
+  //       storeDepartmentData = storeDepartmentData.map((x) => {
+  //         if (x.supply === e.id) {
+  //           return {
+  //             ...x,
+  //             quantity: Number(x.quantity) - Number(e.quantity),
+  //           };
+  //         }
+  //         return x;
+  //       });
+  //     });
+  //     const checkValid = storeDepartmentData.every((e) => e.quantity >= 0);
+  //     if (!checkValid) {
+  //       return res
+  //         .status(HTTPStatusCode.BAD_REQUEST)
+  //         .json("Count of supply want to refund bigger than quantity in store");
+  //     }
+  //     // Calculated quantity supply in Store
+  //     for (const supply of planList) {
+  //       const { id, quantity } = supply;
+  //       const storeSupply = await Store.findById(id);
+  //       const calculatedQuantity = storeSupply.quantity + quantity;
+  //       await Store.findByIdAndUpdate(id, { quantity: calculatedQuantity });
+  //     }
+  //     // Update status of plan
+  //     const planAccepted = await Plan.findByIdAndUpdate(
+  //       id,
+  //       {
+  //         isAccepted: true,
+  //       },
+  //       { new: true }
+  //     );
 
-      await StoreDepart.findOneAndUpdate(
-        { department: planAccepted.department },
-        { data: storeDepartmentData }
-      );
-      return res.status(HTTPStatusCode.OK).json(planAccepted);
-    } catch (err) {
-      console.log(err);
-      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
-    }
-  },
+  //     await StoreDepart.findOneAndUpdate(
+  //       { department: planAccepted.department },
+  //       { data: storeDepartmentData }
+  //     );
+  //     return res.status(HTTPStatusCode.OK).json(planAccepted);
+  //   } catch (err) {
+  //     console.log(err);
+  //     return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+  //   }
+  // },
 };
 
 module.exports = planController;

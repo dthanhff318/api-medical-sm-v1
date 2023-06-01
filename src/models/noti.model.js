@@ -5,7 +5,7 @@ const { toJSON } = require("./plugin/toJSON.plugin");
 autoIncrement.initialize(mongoose.connection);
 
 const notiSchema = new mongoose.Schema({
-  for: {
+  notiFor: {
     type: String,
     enum: ["admin", "user"],
     required: true,

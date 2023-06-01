@@ -1,11 +1,11 @@
 const { HTTPStatusCode } = require("../constants");
-const Plan = require("../models/plan.model");
+const Noti = require("../models/noti.model");
 
 const notiController = {
   getNoti: async (req, res) => {
-    const {} = req.query;
-    const listNoti = await Noti.find();
-    return res.status(HTTPStatusCode.OK).json();
+    const { notiFor } = req.query;
+    const listNoti = await Noti.find({ notiFor });
+    return res.status(HTTPStatusCode.OK).json(listNoti);
   },
 };
 
