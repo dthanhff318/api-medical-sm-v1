@@ -8,6 +8,7 @@ const supplierRoute = require("./supplierRoute");
 const storeRoute = require("./storeRoute");
 const planRoute = require("./planRoute");
 const serviceRoute = require("./serviceRoute");
+const notiRoute = require("./notiRoute");
 
 apiV1.use("/auth", authRoute);
 apiV1.use("/user", userRoute);
@@ -17,5 +18,6 @@ apiV1.use("/supplier", supplierRoute);
 apiV1.use("/store", storeRoute);
 apiV1.use("/plan", planRoute);
 apiV1.use("/service", serviceRoute);
+apiV1.use("/noti", notiRoute);
 
 module.exports = apiV1;

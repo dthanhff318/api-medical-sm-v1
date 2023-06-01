@@ -16,12 +16,22 @@ const notiSchema = new mongoose.Schema({
     required: true,
   },
   status: {
-    type: Boolean,
+    type: String,
+    enum: ["sent", "accept", "reject"],
     required: true,
   },
   createdTime: {
     type: String,
-    default: undefined,
+    required: true,
+  },
+  ticket: {
+    type: Number,
+    ref: "Plan",
+    required: true,
+  },
+  seen: {
+    type: Boolean,
+    default: false,
   },
 });
 notiSchema.plugin(toJSON);
