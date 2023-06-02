@@ -3,8 +3,21 @@ const Noti = require("../models/noti.model");
 
 const notiController = {
   getNoti: async (req, res) => {
-    const { notiFor } = req.query;
-    const listNoti = await Noti.find({ notiFor });
+    const { notiFor, offset = 1 } = req.query;
+    const calculateOffset = (offset - 1) * 10;
+    const listNoti = await Noti.find({ notiFor })
+      .skip(calculateOffset)
+      .limit(10)
+      .populate({
+        path: "department",
+        model: "Department",
+        select: "name",
+      })
+      .populate({
+        path: "ticket",
+        model: "Plan",
+        select: "typePlan",
+      });
     return res.status(HTTPStatusCode.OK).json(listNoti);
   },
   markAsSeenNoti: async (req, res) => {
