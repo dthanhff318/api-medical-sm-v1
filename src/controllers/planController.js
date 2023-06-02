@@ -83,8 +83,16 @@ const planController = {
   acceptPlan: async (req, res) => {
     try {
       const { id } = req.params;
-      const { planList, type, department } = await Plan.findById(id);
-      if (type === 2) {
+      const { planList, typePlan, department } = await Plan.findById(id);
+      const storeDepartment = await StoreDepart.findOne({
+        department,
+      });
+      if (!storeDepartment) {
+        return res
+          .status(HTTPStatusCode.NOT_FOUND)
+          .json("Can not found department");
+      }
+      if (typePlan === 2) {
         // Calculated quantity supply in Store
         for (const supply of planList) {
           const { id, quantity } = supply;
@@ -106,9 +114,7 @@ const planController = {
           { new: true }
         );
         // Calculated quantity supply in Store Department
-        const storeDepartment = await StoreDepart.findOne({
-          department: planAccepted.department,
-        });
+
         // Update supple in store department
         let storeDepartmentData = [...storeDepartment.data];
         planList.forEach((e) => {
@@ -137,12 +143,7 @@ const planController = {
         );
         return res.status(HTTPStatusCode.OK).json(planAccepted);
       }
-      if (type === 4) {
-        // Calculated quantity supply in Store Department
-        const storeDepartment = await StoreDepart.findOne({
-          department,
-        });
-
+      if (typePlan === 4) {
         // Update supply in store department
         let storeDepartmentData = [...storeDepartment.data];
         planList.forEach((e) => {
