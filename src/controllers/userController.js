@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/users.model");
 const Department = require("../models/department.model");
 const { HTTPStatusCode } = require("../constants");
+const { sendUserRegistrationInfo } = require("../services/email.services");
 
 const userController = {
   createUser: async (req, res) => {
@@ -23,6 +24,7 @@ const userController = {
       await Department.findByIdAndUpdate(idDepartment, {
         $push: { member: user.id },
       });
+      sendUserRegistrationInfo(req.body);
       return res.status(HTTPStatusCode.OK).json(user);
     } catch (err) {
       console.log(err);

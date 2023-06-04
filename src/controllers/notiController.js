@@ -18,7 +18,14 @@ const notiController = {
         model: "Plan",
         select: "typePlan",
       });
-    return res.status(HTTPStatusCode.OK).json(listNoti);
+    const numberOfUnreadNoti = await Noti.countDocuments({ seen: false });
+    const countNoti = await Noti.countDocuments({});
+    const hasMore = countNoti > offset * 10;
+    return res.status(HTTPStatusCode.OK).json({
+      listNoti,
+      unread: numberOfUnreadNoti,
+      isHasMore: hasMore,
+    });
   },
   markAsSeenNoti: async (req, res) => {
     const { listNoti } = req.body;

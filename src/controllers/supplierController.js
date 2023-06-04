@@ -36,6 +36,22 @@ const supplierController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
+  updateSupplier: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const dataUpdate = Object.entries(req.body).reduce((qrObj, q) => {
+        if (q[1]) {
+          return { ...qrObj, [q[0]]: q[1] };
+        }
+      }, {});
+      const supplierUpdated = await Supplier.findByIdAndUpdate(id, dataUpdate, {
+        new: true,
+      });
+      return res.status(HTTPStatusCode.OK).json(supplierUpdated);
+    } catch (err) {
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
   deleteSupplier: async (req, res) => {
     try {
       const { id } = req.params;

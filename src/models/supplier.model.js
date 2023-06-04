@@ -20,6 +20,10 @@ const supplierSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  location: {
+    type: String,
+    default: null,
+  },
 });
 
 autoIncrement.initialize(mongoose.connection);
