@@ -52,7 +52,13 @@ const storeController = {
     try {
       const { id } = req.params;
       const dataUpdate = req.body;
-      return res.status(HTTPStatusCode.OK).json(dataUpdate);
+      const supplyUpdated = await Store.findByIdAndUpdate(id, dataUpdate, {
+        new: true,
+      });
+      if (!supplyUpdated) {
+        return res.status(HTTPStatusCode.NOT_FOUND).json("Not found supply");
+      }
+      return res.status(HTTPStatusCode.OK).json(supplyUpdated);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
@@ -61,7 +67,10 @@ const storeController = {
   deleteOneSupply: async (req, res) => {
     try {
       const { id } = req.params;
-      await Store.findByIdAndDelete(id);
+      const supplyDeleted = await Store.findByIdAndDelete(id);
+      if (!supplyDeleted) {
+        return res.status(HTTPStatusCode.NOT_FOUND).json("Not found supply");
+      }
       return res.status(HTTPStatusCode.OK).json();
     } catch (err) {
       console.log(err);
