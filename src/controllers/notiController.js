@@ -3,9 +3,15 @@ const Noti = require("../models/noti.model");
 
 const notiController = {
   getNoti: async (req, res) => {
-    const { notiFor, offset = 1 } = req.query;
+    const { notiFor, offset = 1, department } = req.query;
+    const queryObj = Object.entries(req.query).reduce((qrObj, q) => {
+      if (q[1]) {
+        return { ...qrObj, [q[0]]: q[1] };
+      }
+    }, {});
+    delete queryObj["offset"];
     const calculateOffset = (offset - 1) * 10;
-    const listNoti = await Noti.find({ notiFor })
+    const listNoti = await Noti.find(queryObj)
       .skip(calculateOffset)
       .limit(10)
       .populate({
@@ -18,8 +24,11 @@ const notiController = {
         model: "Plan",
         select: "typePlan",
       });
-    const numberOfUnreadNoti = await Noti.countDocuments({ seen: false });
-    const countNoti = await Noti.countDocuments({});
+    const numberOfUnreadNoti = await Noti.countDocuments({
+      notiFor,
+      seen: false,
+    });
+    const countNoti = await Noti.countDocuments(queryObj);
     const hasMore = countNoti > offset * 10;
     return res.status(HTTPStatusCode.OK).json({
       listNoti,

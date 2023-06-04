@@ -48,6 +48,16 @@ const storeController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
+  updateSupply: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const dataUpdate = req.body;
+      return res.status(HTTPStatusCode.OK).json(dataUpdate);
+    } catch (err) {
+      console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
   deleteOneSupply: async (req, res) => {
     try {
       const { id } = req.params;
