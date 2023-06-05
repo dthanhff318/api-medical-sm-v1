@@ -24,7 +24,7 @@ const userController = {
       await Department.findByIdAndUpdate(idDepartment, {
         $push: { member: user.id },
       });
-      sendUserRegistrationInfo(req.body);
+      await sendUserRegistrationInfo(req.body);
       return res.status(HTTPStatusCode.OK).json(user);
     } catch (err) {
       console.log(err);
