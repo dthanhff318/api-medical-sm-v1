@@ -4,6 +4,7 @@ const Store = require("../models/store.model");
 const Plan = require("../models/plan.model");
 const Noti = require("../models/noti.model");
 const StoreDepart = require("../models/storeDepart.model");
+const Department = require("../models/department.model");
 
 const planController = {
   sendPlan: async (req, res) => {
@@ -207,6 +208,42 @@ const planController = {
         await newNotiAccept.save();
         return res.status(HTTPStatusCode.OK).json(planAccepted);
       }
+    } catch (err) {
+      console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
+  // Ticket Department
+  getTicketDepartment: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { page = 1, limit = 10 } = req.query;
+      const calculatePage = (page - 1) * limit;
+      // const queryObj = Object.entries(req.query).reduce((qrObj, q) => {
+      //   if (q[1]) {
+      //     return { ...qrObj, [q[0]]: q[1] };
+      //   }
+      // }, {});
+      const getDepartment = await Department.findById(id);
+      if (!getDepartment) {
+        return res
+          .status(HTTPStatusCode.NOT_FOUND)
+          .json("Can't not found department");
+      }
+      const listPlans = await Plan.find({ department: id })
+        .skip(calculatePage)
+        .limit(Number(limit));
+      const totalResults = await Plan.countDocuments({ department: id });
+      const totalPages = Math.ceil(totalResults / limit);
+      return res.status(HTTPStatusCode.OK).json({
+        results: listPlans,
+        pagination: {
+          totalResults,
+          totalPages,
+          limit: Number(limit),
+          page: Number(page),
+        },
+      });
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);

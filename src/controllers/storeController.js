@@ -95,8 +95,12 @@ const storeController = {
           select: "name",
         },
       });
+      console.log(storeDepartment.data);
       const mappingData = storeDepartment.data
         .map((d) => {
+          if (!d.supply._id) {
+            return {};
+          }
           const id = d.supply._id;
           delete d.supply._doc._id;
           return {
