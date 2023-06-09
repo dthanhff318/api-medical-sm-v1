@@ -36,7 +36,6 @@ const storeController = {
   addSupplyToStore: async (req, res) => {
     try {
       const { company, codeBill, add } = req.body;
-      console.log(add);
       for (const supply of add) {
         const { price, totalPrice, unitPrice, ...data } = supply;
         const storeItem = new Store({ ...data, company });
@@ -54,6 +53,10 @@ const storeController = {
       const dataUpdate = req.body;
       const supplyUpdated = await Store.findByIdAndUpdate(id, dataUpdate, {
         new: true,
+      }).populate({
+        path: "company",
+        model: "Supplier",
+        select: "name",
       });
       if (!supplyUpdated) {
         return res.status(HTTPStatusCode.NOT_FOUND).json("Not found supply");
