@@ -4,9 +4,11 @@ const Supplier = require("../models/supplier.model");
 const supplierController = {
   getSupplier: async (req, res) => {
     try {
-      const { page = 1, limit = 10 } = req.query;
+      const { page = 1, limit = 10, q = "" } = req.query;
       const calculatePage = (page - 1) * limit;
-      const supplier = await Supplier.find()
+      const supplier = await Supplier.find({
+        name: { $regex: q, $options: "i" },
+      })
         .skip(calculatePage)
         .limit(Number(limit));
       const totalResults = await Supplier.countDocuments({});
