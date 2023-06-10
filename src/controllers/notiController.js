@@ -37,13 +37,17 @@ const notiController = {
     });
   },
   markAsSeenNoti: async (req, res) => {
-    const { listNoti } = req.body;
-    for (const id of listNoti) {
-      await Noti.findByIdAndUpdate(id, {
-        seen: true,
-      });
+    const { idNoti } = req.body;
+    const findNoti = await Noti.findById(idNoti);
+    if (!findNoti) {
+      return;
     }
-    return res.status(HTTPStatusCode.OK).json();
+    const updateStatusNoti = await Noti.findByIdAndUpdate(idNoti, {
+      seen: true,
+      new: true,
+    });
+
+    return res.status(HTTPStatusCode.OK).json(updateStatusNoti);
   },
 };
 
