@@ -44,15 +44,15 @@ const biddingSchema = new mongoose.Schema({
     required: true,
   },
   biddingCount: {
-    type: String,
+    type: Number,
     required: true,
   },
   buyCount: {
-    type: String,
+    type: Number,
     required: true,
   },
   remainCount: {
-    type: String,
+    type: Number,
     required: true,
   },
   biddingPrice: {

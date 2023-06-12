@@ -1,6 +1,7 @@
 const { HTTPStatusCode } = require("../constants");
 const StoreDepart = require("../models/storeDepart.model");
 const Store = require("../models/store.model");
+const Bidding = require("../models/bidding.model");
 
 const storeController = {
   getSupplyFromStore: async (req, res) => {
@@ -38,8 +39,42 @@ const storeController = {
       const { company, codeBill, add } = req.body;
       for (const supply of add) {
         const { price, totalPrice, unitPrice, ...data } = supply;
-        const storeItem = new Store({ ...data, company });
-        await storeItem.save();
+        const findSupplyExist = await Store.findOne({ code: data.code });
+        const findBiddingSupply = await Bidding.findOne({ code: data.code });
+        if (!findBiddingSupply) {
+          return res
+            .status(HTTPStatusCode.BAD_REQUEST)
+            .json("Some supplies not includes in bidding list");
+        }
+        if (!findSupplyExist) {
+          const storeItem = new Store({ ...data, company });
+          await storeItem.save();
+        } else {
+          if (findBiddingSupply.quantity < findSupplyExist.quantity) {
+            return res
+              .status(HTTPStatusCode.BAD_REQUEST)
+              .json(
+                "The quantity of some supplies is greater than its in bidding list"
+              );
+          }
+          await Store.findOneAndUpdate(
+            { code: data.code },
+            {
+              $inc: { quantity: data.quantity },
+            }
+          );
+          await Bidding.findOneAndUpdate(
+            {
+              code: data.code,
+            },
+            {
+              $inc: {
+                remainCount: -Number(data.quantity),
+                buyCount: data.quantity,
+              },
+            }
+          );
+        }
       }
       return res.status(HTTPStatusCode.OK).json("OK");
     } catch (err) {
