@@ -35,10 +35,6 @@ const biddingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  unitPrice: {
-    type: String,
-    required: true,
-  },
   yearBidding: {
     type: Number,
     required: true,
