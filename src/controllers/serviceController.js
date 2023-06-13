@@ -1,4 +1,5 @@
 const { HTTPStatusCode } = require("../constants");
+const moment = require("moment");
 const Store = require("../models/store.model");
 const Department = require("../models/department.model");
 const Supplier = require("../models/supplier.model");
@@ -6,18 +7,27 @@ const Supplier = require("../models/supplier.model");
 const serviceController = {
   getCommonData: async (req, res) => {
     try {
+      const { day = 30 } = req.query;
       let date = new Date();
       date.setDate(date.getDate() + 30);
       const totalSupply = await Store.countDocuments({});
       const totalDepartment = await Department.countDocuments({});
       const totalSupplier = await Supplier.countDocuments({});
-      const totalSupplyExpired = await Store.find({
-        dataExpired: { $gte: date },
+      const listSupply = await Store.find({
+        dateExpired: { $ne: "" },
       });
+      const listSupplyWillExpired = listSupply.filter((s) => {
+        const expiredDate = moment(s.dateExpired, "MMM DD[th] YY");
+        const now = moment();
+        const diffDays = -now.diff(expiredDate, "days");
+        return diffDays < day;
+      });
+
       const response = {
         supply: totalSupply,
         department: totalDepartment,
         supplier: totalSupplier,
+        listSuppliesExpired: listSupplyWillExpired,
       };
       return res.status(HTTPStatusCode.OK).json(response);
     } catch (err) {

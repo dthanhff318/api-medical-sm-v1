@@ -46,7 +46,7 @@ const storeSchema = new mongoose.Schema({
   },
   dateExpired: {
     type: String,
-    default: null,
+    default: "",
   },
   productCode: {
     type: String,
