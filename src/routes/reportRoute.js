@@ -1,7 +1,10 @@
 const express = require("express");
-const serviceController = require("../controllers/serviceController");
+const reportController = require("../controllers/reportController");
 const reportRoute = express.Router();
 
-reportRoute.get("/", serviceController.getCommonData);
+reportRoute.post(
+  "/export-department",
+  reportController.getReportExportToDepartment
+);
 
 module.exports = reportRoute;
