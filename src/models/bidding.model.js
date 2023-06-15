@@ -23,6 +23,11 @@ const biddingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isLoss: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   brand: {
     type: String,
     required: true,
