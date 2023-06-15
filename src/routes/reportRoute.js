@@ -6,5 +6,9 @@ reportRoute.post(
   "/export-department",
   reportController.getReportExportToDepartment
 );
+reportRoute.post(
+  "/refund-department",
+  reportController.getReportRefundFromDepartment
+);
 
 module.exports = reportRoute;
