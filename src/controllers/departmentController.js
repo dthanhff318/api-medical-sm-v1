@@ -22,9 +22,11 @@ const departmentController = {
   // With pagination
   getDepartments: async (req, res) => {
     try {
-      const { page = 1, limit = 10 } = req.query;
+      const { q = "", page = 1, limit = 10 } = req.query;
       const calculatePage = (page - 1) * limit;
-      const departments = await Department.find()
+      const departments = await Department.find({
+        name: { $regex: q, $options: "i" },
+      })
         .skip(calculatePage)
         .limit(Number(limit))
         .populate({

@@ -1,12 +1,17 @@
 const Bidding = require("../models/bidding.model");
+const Group = require("../models/group.model");
 const { HTTPStatusCode } = require("../constants");
 const Supplier = require("../models/supplier.model");
+const Unit = require("../models/unit.model");
+const { pickQuery } = require("../utilities/func");
 
 const biddingController = {
   updateBiddingList: async (req, res) => {
     try {
       const dataBidding = req.body.bidding;
       const listSupplier = new Set(dataBidding.map((e) => e.company));
+      const listGroup = new Set(dataBidding.map((e) => e.group));
+      const listUnit = new Set(dataBidding.map((e) => e.unit));
       // Check and create supplier
       for (const item of listSupplier) {
         const checkExist = await Supplier.findOne({ name: item });
@@ -15,10 +20,33 @@ const biddingController = {
           await newSupplier.save();
         }
       }
+      // Check and create group of supply
+      for (const item of listGroup) {
+        const checkExist = await Group.findOne({ name: item });
+        if (!checkExist) {
+          const newGroup = new Group({ name: item });
+          await newGroup.save();
+        }
+      }
+      // Check and create Unit of supply
+      for (const item of listUnit) {
+        const checkExist = await Unit.findOne({ name: item });
+        if (!checkExist) {
+          const newUnit = new Unit({ name: item });
+          await newUnit.save();
+        }
+      }
       // Create list bidding
       for (const item of dataBidding) {
         const supplierId = await Supplier.findOne({ name: item.company });
-        const biddingItem = new Bidding({ ...item, company: supplierId });
+        const groupId = await Group.findOne({ name: item.group });
+        const unitId = await Unit.findOne({ name: item.unit });
+        const biddingItem = new Bidding({
+          ...item,
+          company: supplierId,
+          group: groupId,
+          unit: unitId,
+        });
         await biddingItem.save();
       }
       return res.status(HTTPStatusCode.OK).json();
@@ -29,14 +57,29 @@ const biddingController = {
   },
   getBidding: async (req, res) => {
     try {
-      const { page = 1, limit = 10 } = req.query;
+      const { q = "", page = 1, limit = 10, ...moreQuery } = req.query;
+      const objQuery = pickQuery(moreQuery);
+
       const calculatePage = (page - 1) * limit;
-      const biddingData = await Bidding.find({})
+      const biddingData = await Bidding.find({
+        name: { $regex: q, $options: "i" },
+        ...objQuery,
+      })
         .skip(calculatePage)
         .limit(Number(limit))
         .populate({
           path: "company",
           model: "Supplier",
+          select: "name",
+        })
+        .populate({
+          path: "group",
+          model: "Group",
+          select: "name",
+        })
+        .populate({
+          path: "unit",
+          model: "Unit",
           select: "name",
         });
       const totalResults = await Bidding.countDocuments({});

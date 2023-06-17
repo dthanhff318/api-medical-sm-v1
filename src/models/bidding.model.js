@@ -16,12 +16,14 @@ const biddingSchema = new mongoose.Schema({
     required: true,
   },
   unit: {
-    type: String,
+    type: Number,
     required: true,
+    ref: "Unit",
   },
   group: {
-    type: String,
+    type: Number,
     required: true,
+    ref: "Group",
   },
   isLoss: {
     type: Boolean,

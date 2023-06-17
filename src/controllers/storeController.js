@@ -2,20 +2,33 @@ const { HTTPStatusCode } = require("../constants");
 const StoreDepart = require("../models/storeDepart.model");
 const Store = require("../models/store.model");
 const Bidding = require("../models/bidding.model");
+const { pickQuery } = require("../utilities/func");
 
 const storeController = {
   getSupplyFromStore: async (req, res) => {
     try {
-      const { q = "", page = 1, limit = 10 } = req.query;
+      const { q = "", page = 1, limit = 10, ...moreQuery } = req.query;
+      const objQuery = pickQuery(moreQuery);
       const calculatePage = (page - 1) * limit;
       const storeSupply = await Store.find({
         name: { $regex: q, $options: "i" },
+        ...objQuery,
       })
         .skip(calculatePage)
         .limit(Number(limit))
         .populate({
           path: "company",
           model: "Supplier",
+          select: "name",
+        })
+        .populate({
+          path: "group",
+          model: "Group",
+          select: "name",
+        })
+        .populate({
+          path: "unit",
+          model: "Unit",
           select: "name",
         });
       const totalResults = await Store.countDocuments({});
