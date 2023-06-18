@@ -57,9 +57,8 @@ const biddingController = {
   },
   getBidding: async (req, res) => {
     try {
-      const { q = "", page = 1, limit = 10, ...moreQuery } = req.query;
+      const { q = "", page = 1, limit = 4, ...moreQuery } = req.query;
       const objQuery = pickQuery(moreQuery);
-
       const calculatePage = (page - 1) * limit;
       const biddingData = await Bidding.find({
         name: { $regex: q, $options: "i" },
@@ -82,7 +81,10 @@ const biddingController = {
           model: "Unit",
           select: "name",
         });
-      const totalResults = await Bidding.countDocuments({});
+      const totalResults = await Bidding.countDocuments({
+        name: { $regex: q, $options: "i" },
+        ...objQuery,
+      });
       const totalPages = Math.ceil(totalResults / limit);
       return res.status(HTTPStatusCode.OK).json({
         results: biddingData,
