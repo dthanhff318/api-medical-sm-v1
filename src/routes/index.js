@@ -10,6 +10,7 @@ const planRoute = require("./planRoute");
 const serviceRoute = require("./serviceRoute");
 const notiRoute = require("./notiRoute");
 const reportRoute = require("./reportRoute");
+const unitRoute = require("./unitRoute");
 
 apiV1.use("/auth", authRoute);
 apiV1.use("/user", userRoute);
@@ -21,5 +22,6 @@ apiV1.use("/plan", planRoute);
 apiV1.use("/service", serviceRoute);
 apiV1.use("/noti", notiRoute);
 apiV1.use("/report", reportRoute);
+apiV1.use("/unit", unitRoute);
 
 module.exports = apiV1;
