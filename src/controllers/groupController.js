@@ -42,17 +42,17 @@ const groupController = {
     });
   },
   updateGroup: async (req, res) => {
-    const { groupId } = req.params;
+    const { id } = req.params;
     const dataUpdate = pickQuery(req.body);
-    const updateGroup = await Group.findByIdAndUpdate(groupId, dataUpdate, {
+    const updateGroup = await Group.findByIdAndUpdate(id, dataUpdate, {
       new: true,
     });
     return res.status(HTTPStatusCode.OK).json(updateGroup);
   },
 
   deleteGroup: async (req, res) => {
-    const { idGroup } = req.params;
-    await Group.findByIdAndDelete(idGroup);
+    const { id } = req.params;
+    await Group.findByIdAndDelete(id);
     return res.status(HTTPStatusCode.OK).json();
   },
 };
