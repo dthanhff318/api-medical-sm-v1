@@ -2,6 +2,16 @@ const { HTTPStatusCode } = require("../constants");
 const Supplier = require("../models/supplier.model");
 
 const supplierController = {
+  createSupplier: async (req, res) => {
+    try {
+      const newSupplier = new Supplier(req.body);
+      const departmentCreated = await newSupplier.save();
+      return res.status(HTTPStatusCode.OK).json(departmentCreated);
+    } catch (err) {
+      console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
   getSupplier: async (req, res) => {
     try {
       const { page = 1, limit = 10, q = "" } = req.query;

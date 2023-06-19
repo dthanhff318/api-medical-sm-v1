@@ -31,7 +31,10 @@ const storeController = {
           model: "Unit",
           select: "name",
         });
-      const totalResults = await Store.countDocuments({});
+      const totalResults = await Store.countDocuments({
+        name: { $regex: q, $options: "i" },
+        ...objQuery,
+      });
       const totalPages = Math.ceil(totalResults / limit);
       return res.status(HTTPStatusCode.OK).json({
         results: storeSupply,
@@ -146,7 +149,6 @@ const storeController = {
           select: "name",
         },
       });
-      console.log(storeDepartment.data);
       const mappingData = storeDepartment.data
         .map((d) => {
           if (!d.supply._id) {
