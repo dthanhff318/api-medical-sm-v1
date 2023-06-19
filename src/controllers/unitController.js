@@ -42,17 +42,17 @@ const unitController = {
     });
   },
   updateUnit: async (req, res) => {
-    const { unitId } = req.params;
+    const { id } = req.params;
     const dataUpdate = pickQuery(req.body);
-    const updateUnit = await Unit.findByIdAndUpdate(unitId, dataUpdate, {
+    const updateUnit = await Unit.findByIdAndUpdate(id, dataUpdate, {
       new: true,
     });
     return res.status(HTTPStatusCode.OK).json(updateUnit);
   },
 
   deleteUnit: async (req, res) => {
-    const { idUnit } = req.params;
-    await Unit.findByIdAndDelete(idUnit);
+    const { id } = req.params;
+    await Unit.findByIdAndDelete(id);
     return res.status(HTTPStatusCode.OK).json();
   },
 };

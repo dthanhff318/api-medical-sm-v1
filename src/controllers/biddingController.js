@@ -57,7 +57,7 @@ const biddingController = {
   },
   getBidding: async (req, res) => {
     try {
-      const { q = "", page = 1, limit = 4, ...moreQuery } = req.query;
+      const { q = "", page = 1, limit = 10, ...moreQuery } = req.query;
       const objQuery = pickQuery(moreQuery);
       const calculatePage = (page - 1) * limit;
       const biddingData = await Bidding.find({
