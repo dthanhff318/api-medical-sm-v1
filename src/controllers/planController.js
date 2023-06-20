@@ -97,6 +97,30 @@ const planController = {
           .status(HTTPStatusCode.NOT_FOUND)
           .json("Can not found department");
       }
+      // Type = 1, 2 : Import supply to department
+      if (typePlan === 1) {
+        // Calculated quantity supply in Store
+        for (const supply of planList) {
+          const { id, quantity } = supply;
+          const storeSupply = await Store.findById(id);
+          const calculatedQuantity = storeSupply.quantity - quantity;
+          if (calculatedQuantity < 0 || quantity < 0) {
+            return res
+              .status(HTTPStatusCode.BAD_REQUEST)
+              .json("Count of supply in store is less than expected");
+          }
+          await Store.findByIdAndUpdate(id, { quantity: calculatedQuantity });
+        }
+        // Update status of plan
+        const planAccepted = await Plan.findByIdAndUpdate(
+          id,
+          {
+            isAccepted: true,
+          },
+          { new: true }
+        );
+        return res.status(HTTPStatusCode.OK).json("OK");
+      }
       if (typePlan === 2) {
         // Calculated quantity supply in Store
         for (const supply of planList) {
