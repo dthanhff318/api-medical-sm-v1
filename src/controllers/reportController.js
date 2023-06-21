@@ -35,8 +35,18 @@ const reportController = {
           const timeSend = moment(e.createdTime, "DD MMM YYYY");
           return timeSend.isBetween(startDate, endDate);
         })
-        .reduce((acc, cur) => [...acc, ...cur.planList], []);
-
+        .reduce((acc, cur) => [...acc, ...cur.planList], [])
+        .reduce((acc, cur) => {
+          const exist = acc.find((a) => a.id === cur.id);
+          if (exist) {
+            exist.quantity += cur.quantity;
+          } else {
+            acc.push(cur);
+          }
+          console.log(acc);
+          return acc;
+        }, []);
+      console.log(historyExport);
       const listSupply = await Store.find({})
         .populate({
           path: "company",
@@ -100,7 +110,16 @@ const reportController = {
           const timeSend = moment(e.createdTime, "DD MMM YYYY");
           return timeSend.isBetween(startDate, endDate);
         })
-        .reduce((acc, cur) => [...acc, ...cur.planList], []);
+        .reduce((acc, cur) => [...acc, ...cur.planList], [])
+        .reduce((acc, cur) => {
+          const exist = acc.find((a) => a.id === cur.id);
+          if (exist) {
+            exist.quantity += cur.quantity;
+          } else {
+            acc.push(cur);
+          }
+          return acc;
+        }, []);
 
       const listSupply = await Store.find({})
         .populate({
@@ -164,7 +183,16 @@ const reportController = {
           const timeSend = moment(e.createdTime, "DD MMM YYYY");
           return timeSend.isBetween(startDate, endDate);
         })
-        .reduce((acc, cur) => [...acc, ...cur.planList], []);
+        .reduce((acc, cur) => [...acc, ...cur.planList], [])
+        .reduce((acc, cur) => {
+          const exist = acc.find((a) => a.id === cur.id);
+          if (exist) {
+            exist.quantity += cur.quantity;
+          } else {
+            acc.push(cur);
+          }
+          return acc;
+        }, []);
 
       const listSupply = await Store.find({})
         .populate({
