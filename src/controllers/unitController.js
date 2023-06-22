@@ -52,6 +52,7 @@ const unitController = {
 
   deleteUnit: async (req, res) => {
     const { id } = req.params;
+    // Check allow delete
     await Unit.findByIdAndDelete(id);
     return res.status(HTTPStatusCode.OK).json();
   },

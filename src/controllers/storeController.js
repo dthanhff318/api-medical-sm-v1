@@ -104,11 +104,22 @@ const storeController = {
       const dataUpdate = req.body;
       const supplyUpdated = await Store.findByIdAndUpdate(id, dataUpdate, {
         new: true,
-      }).populate({
-        path: "company",
-        model: "Supplier",
-        select: "name",
-      });
+      })
+        .populate({
+          path: "company",
+          model: "Supplier",
+          select: "name",
+        })
+        .populate({
+          path: "group",
+          model: "Group",
+          select: "name",
+        })
+        .populate({
+          path: "unit",
+          model: "Unit",
+          select: "name",
+        });
       if (!supplyUpdated) {
         return res.status(HTTPStatusCode.NOT_FOUND).json("Not found supply");
       }
