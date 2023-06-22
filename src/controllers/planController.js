@@ -112,14 +112,22 @@ const planController = {
           await Store.findByIdAndUpdate(id, { quantity: calculatedQuantity });
         }
         // Update status of plan
-        const planAccepted = await Plan.findByIdAndUpdate(
+        await Plan.findByIdAndUpdate(
           id,
           {
             isAccepted: true,
           },
           { new: true }
         );
-        return res.status(HTTPStatusCode.OK).json("OK");
+        const newNotiAccept = new Noti({
+          notiFor: "user",
+          department,
+          status: "accept",
+          createdTime: moment(new Date().now).format("DD-MM-YYYY"),
+          ticket: id,
+        });
+        await newNotiAccept.save();
+        return res.status(HTTPStatusCode.OK).json("Accepted");
       }
       if (typePlan === 2) {
         // Calculated quantity supply in Store
@@ -174,11 +182,38 @@ const planController = {
           notiFor: "user",
           department,
           status: "accept",
-          createdTime: moment(new Date().now).format("Do MMM YY"),
+          createdTime: moment(new Date().now).format("DD-MM-YYYY"),
           ticket: id,
         });
         await newNotiAccept.save();
         return res.status(HTTPStatusCode.OK).json(planAccepted);
+      }
+      if (typePlan === 3) {
+        // Calculated quantity supply in Store
+        for (const supply of planList) {
+          const { id, quantity } = supply;
+          const storeSupply = await Store.findById(id);
+          const calculatedQuantity = storeSupply.quantity + quantity;
+          await Store.findByIdAndUpdate(id, { quantity: calculatedQuantity });
+        }
+        // Update status of plan
+        await Plan.findByIdAndUpdate(
+          id,
+          {
+            isAccepted: true,
+          },
+          { new: true }
+        );
+
+        const newNotiAccept = new Noti({
+          notiFor: "user",
+          department,
+          status: "accept",
+          createdTime: moment(new Date().now).format("DD-MM-YYYY"),
+          ticket: id,
+        });
+        await newNotiAccept.save();
+        return res.status(HTTPStatusCode.OK).json("Accepted");
       }
       if (typePlan === 4) {
         // Update supply in store department
@@ -226,7 +261,7 @@ const planController = {
           notiFor: "user",
           department,
           status: "accept",
-          createdTime: moment(new Date().now).format("Do MMM YY"),
+          createdTime: moment(new Date().now).format("DD-MM-YYYY"),
           ticket: id,
         });
         await newNotiAccept.save();
