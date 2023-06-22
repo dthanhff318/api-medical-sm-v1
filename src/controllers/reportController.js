@@ -181,7 +181,28 @@ const reportController = {
       const historyExport = listTicket
         .filter((e) => {
           const timeSend = moment(e.createdTime, "DD MMM YYYY");
-          return timeSend.isBetween(startDate, endDate);
+          return (
+            timeSend.isBetween(startDate, endDate) &&
+            (e.typePlan === 1 || e.typePlan === 2)
+          );
+        })
+        .reduce((acc, cur) => [...acc, ...cur.planList], [])
+        .reduce((acc, cur) => {
+          const exist = acc.find((a) => a.id === cur.id);
+          if (exist) {
+            exist.quantity += cur.quantity;
+          } else {
+            acc.push(cur);
+          }
+          return acc;
+        }, []);
+      const historyImport = listTicket
+        .filter((e) => {
+          const timeSend = moment(e.createdTime, "DD MMM YYYY");
+          return (
+            timeSend.isBetween(startDate, endDate) &&
+            (e.typePlan === 3 || e.typePlan === 4)
+          );
         })
         .reduce((acc, cur) => [...acc, ...cur.planList], [])
         .reduce((acc, cur) => {
@@ -210,6 +231,7 @@ const reportController = {
           model: "Unit",
           select: "name",
         });
+
       const historyExportDetail = historyExport.map((e) => {
         const findSupplyStore = listSupply.find((d) => d._id === e.id);
         if (!findSupplyStore) {
@@ -219,10 +241,18 @@ const reportController = {
           findSupplyStore._doc;
         return { ...rest, id: e.id, quantityExpect: e.quantity };
       });
-      const historyExportFilterByGroup = historyExportDetail.filter((e) =>
-        group.includes(e.group._id)
-      );
-      return res.status(HTTPStatusCode.OK).json(historyExportFilterByGroup);
+
+      const historyImportDetail = historyImport.map((e) => {
+        const findSupplyStore = listSupply.find((d) => d._id === e.id);
+        if (!findSupplyStore) {
+          return {};
+        }
+        const { _id, yearBidding, __v, codeBidding, ...rest } =
+          findSupplyStore._doc;
+        return { ...rest, id: e.id, quantityExpect: e.quantity };
+      });
+
+      return res.status(HTTPStatusCode.OK).json(historyExportDetail);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
