@@ -252,7 +252,28 @@ const reportController = {
         return { ...rest, id: e.id, quantityExpect: e.quantity };
       });
 
-      return res.status(HTTPStatusCode.OK).json(historyExportDetail);
+      const mappingExport = historyExportDetail.map((e) => ({
+        ...e,
+        quantityExport: e.quantityExpect,
+        quantityImport: 0,
+      }));
+
+      historyImportDetail.forEach((e) => {
+        const exist = mappingExport.find((x) => x.id === e.id);
+        if (exist) {
+          exist.quantityImport = e.quantityExpect;
+        } else {
+          mappingExport.push({
+            ...e,
+            quantityImport: e.quantityExpect,
+          });
+        }
+      });
+
+      const historyInventoryFilterByGroup = mappingExport.filter((e) =>
+        group.includes(e.group._id)
+      );
+      return res.status(HTTPStatusCode.OK).json(historyInventoryFilterByGroup);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
