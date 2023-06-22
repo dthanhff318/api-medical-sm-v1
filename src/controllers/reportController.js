@@ -61,7 +61,6 @@ const reportController = {
           findSupplyStore._doc;
         return { ...rest, id: e.id, quantityExpect: e.quantity };
       });
-      console.log(historyExportDetail);
       const historyExportFilterByGroup = historyExportDetail.filter((e) =>
         group.includes(e.group._id)
       );
