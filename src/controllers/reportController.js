@@ -179,10 +179,10 @@ const reportController = {
           return timeSend.isBetween(startDate, endDate);
         })
         .reduce((acc, cur) => [...acc, ...cur.data], [])
-        .map((x) => ({
-          code: x.code,
-          quantity: x.quantity,
-        }))
+        // .map((x) => ({
+        //   code: x.code,
+        //   quantity: x.quantity,
+        // }))
         .reduce((acc, cur) => {
           const exist = acc.find((a) => a.code === cur.code);
           if (exist) {
@@ -276,7 +276,7 @@ const reportController = {
       historyImportDetail.forEach((e) => {
         const exist = mappingExport.find((x) => x.id === e.id);
         if (exist) {
-          exist.quantityImport = e.quantityExpect;
+          exist.quantityImport = exist.quantityImport + e.quantityExpect;
         } else {
           mappingExport.push({
             ...e,
@@ -285,10 +285,23 @@ const reportController = {
         }
       });
 
+      historyBiddingImport.forEach((e) => {
+        const exist = mappingExport.find((x) => x.code === e.code);
+        if (exist) {
+          exist.quantityImport = exist.quantityImport + e.quantity;
+        } else {
+          mappingExport.push({
+            ...e,
+            quantityImport: e.quantity,
+            quantityExport: 0,
+          });
+        }
+      });
+      console.log(mappingExport);
       const historyInventoryFilterByGroup = mappingExport.filter((e) =>
-        group.includes(e.group._id)
+        group.includes(e.group._id || e.group)
       );
-      return res.status(HTTPStatusCode.OK).json(historyBiddingImport);
+      return res.status(HTTPStatusCode.OK).json(historyInventoryFilterByGroup);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
