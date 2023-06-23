@@ -157,25 +157,17 @@ const reportController = {
   },
   getReportInventory: async (req, res) => {
     try {
-      const { timeRange, department, group } = req.body;
+      const { timeRange, group } = req.body;
       for (const g of group) {
         const checkAvailableGroup = await Group.findById(g);
         if (!checkAvailableGroup) {
           return res.status(HTTPStatusCode.NOT_FOUND).json("Group not found");
         }
       }
-      for (const d of department) {
-        const checkAvailableDepartment = await Department.findById(d);
-        if (!checkAvailableDepartment) {
-          return res
-            .status(HTTPStatusCode.NOT_FOUND)
-            .json("Department not found");
-        }
-      }
+
       const startDate = moment(timeRange[0], "DD MM YY");
       const endDate = moment(timeRange[1], "DD MM YY");
       const listTicket = await Plan.find({
-        department: { $in: department },
         isAccepted: true,
       });
       const historyExport = listTicket
