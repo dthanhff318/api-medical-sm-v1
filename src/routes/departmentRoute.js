@@ -7,6 +7,7 @@ departmentRoute.get("/", departmentController.getDepartments);
 departmentRoute.get("/all", departmentController.getAllDepartment);
 departmentRoute.get("/:idDepartment", departmentController.getDetailDepartment);
 departmentRoute.post("/", departmentController.createDepartment);
+departmentRoute.patch("/:departmentId", departmentController.updateDepartment);
 departmentRoute.delete("/:departmentId", departmentController.deleteDepartment);
 
 module.exports = departmentRoute;

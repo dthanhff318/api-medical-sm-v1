@@ -4,6 +4,7 @@ const Store = require("../models/store.model");
 const Group = require("../models/group.model");
 const Department = require("../models/department.model");
 const { HTTPStatusCode } = require("../constants");
+const HistoryBidding = require("../models/historyBidding.model");
 
 const reportController = {
   getReportExportToDepartment: async (req, res) => {
@@ -170,6 +171,28 @@ const reportController = {
       const listTicket = await Plan.find({
         isAccepted: true,
       });
+
+      const listHistoryBidding = await HistoryBidding.find({});
+      const historyBiddingImport = listHistoryBidding
+        .filter((e) => {
+          const timeSend = moment(e.createdTime, "DD MM YYYY");
+          return timeSend.isBetween(startDate, endDate);
+        })
+        .reduce((acc, cur) => [...acc, ...cur.data], [])
+        .map((x) => ({
+          code: x.code,
+          quantity: x.quantity,
+        }))
+        .reduce((acc, cur) => {
+          const exist = acc.find((a) => a.code === cur.code);
+          if (exist) {
+            exist.quantity += cur.quantity;
+          } else {
+            acc.push(cur);
+          }
+          return acc;
+        }, []);
+
       const historyExport = listTicket
         .filter((e) => {
           const timeSend = moment(e.createdTime, "DD MMM YYYY");
@@ -265,7 +288,7 @@ const reportController = {
       const historyInventoryFilterByGroup = mappingExport.filter((e) =>
         group.includes(e.group._id)
       );
-      return res.status(HTTPStatusCode.OK).json(historyInventoryFilterByGroup);
+      return res.status(HTTPStatusCode.OK).json(historyBiddingImport);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);

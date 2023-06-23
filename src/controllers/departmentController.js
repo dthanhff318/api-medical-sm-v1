@@ -19,6 +19,18 @@ const departmentController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
+  updateDepartment: async (req, res) => {
+    const { id } = req.params;
+    const dataUpdate = pickQuery(req.body);
+    const updateDepartment = await Department.findByIdAndUpdate(
+      id,
+      dataUpdate,
+      {
+        new: true,
+      }
+    );
+    return res.status(HTTPStatusCode.OK).json(updateDepartment);
+  },
   // With pagination
   getDepartments: async (req, res) => {
     try {
