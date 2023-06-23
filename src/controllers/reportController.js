@@ -44,10 +44,8 @@ const reportController = {
           } else {
             acc.push(cur);
           }
-          console.log(acc);
           return acc;
         }, []);
-      console.log(historyExport);
       const listSupply = await Store.find({})
         .populate({
           path: "company",
