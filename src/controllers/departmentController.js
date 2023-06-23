@@ -1,6 +1,7 @@
 const Department = require("../models/department.model");
 const StoreDepart = require("../models/storeDepart.model");
 const User = require("../models/users.model");
+const { pickQuery } = require("../utilities/func");
 const { HTTPStatusCode } = require("../constants");
 
 const departmentController = {
@@ -20,10 +21,10 @@ const departmentController = {
     }
   },
   updateDepartment: async (req, res) => {
-    const { id } = req.params;
+    const { departmentId } = req.params;
     const dataUpdate = pickQuery(req.body);
     const updateDepartment = await Department.findByIdAndUpdate(
-      id,
+      departmentId,
       dataUpdate,
       {
         new: true,
