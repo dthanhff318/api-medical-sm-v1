@@ -1,8 +1,10 @@
 const { HTTPStatusCode } = require("../constants");
+const moment = require("moment");
 const StoreDepart = require("../models/storeDepart.model");
 const Store = require("../models/store.model");
 const Bidding = require("../models/bidding.model");
 const { pickQuery } = require("../utilities/func");
+const HistoryBidding = require("../models/historyBidding.model");
 
 const storeController = {
   getSupplyFromStore: async (req, res) => {
@@ -92,6 +94,12 @@ const storeController = {
           );
         }
       }
+      const historyBiddingExport = new HistoryBidding({
+        data: add,
+        type: "export",
+        createdTime: moment(new Date().now).format("DD-MM-YYYY"),
+      });
+      await historyBiddingExport.save();
       return res.status(HTTPStatusCode.OK).json("OK");
     } catch (err) {
       console.log(err);

@@ -126,7 +126,22 @@ const biddingController = {
       const idSupplier = req.params.id;
       const findList = await Bidding.find({
         company: idSupplier,
-      });
+      })
+        .populate({
+          path: "company",
+          model: "Supplier",
+          select: "name",
+        })
+        .populate({
+          path: "group",
+          model: "Group",
+          select: "name",
+        })
+        .populate({
+          path: "unit",
+          model: "Unit",
+          select: "name",
+        });
       return res.status(HTTPStatusCode.OK).json(findList);
     } catch (err) {
       console.log(err);
