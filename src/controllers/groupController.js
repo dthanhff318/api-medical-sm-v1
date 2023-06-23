@@ -1,4 +1,6 @@
 const Group = require("../models/group.model");
+const Bidding = require("../models/bidding.model");
+const Store = require("../models/store.model");
 const { pickQuery } = require("../utilities/func");
 const { HTTPStatusCode } = require("../constants");
 
@@ -52,6 +54,19 @@ const groupController = {
 
   deleteGroup: async (req, res) => {
     const { id } = req.params;
+    // Check allow delete
+    const checkExistBidding = await Bidding.findOne({ group: id });
+    if (checkExistBidding) {
+      return res
+        .status(HTTPStatusCode.BAD_REQUEST)
+        .json("Group is used, so you can't not delete it");
+    }
+    const checkExistStore = await Store.findOne({ group: id });
+    if (checkExistStore) {
+      return res
+        .status(HTTPStatusCode.BAD_REQUEST)
+        .json("Group is used, so you can't not delete it");
+    }
     await Group.findByIdAndDelete(id);
     return res.status(HTTPStatusCode.OK).json();
   },

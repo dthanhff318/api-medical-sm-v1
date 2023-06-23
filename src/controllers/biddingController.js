@@ -1,4 +1,5 @@
 const Bidding = require("../models/bidding.model");
+const Store = require("../models/store.model");
 const Group = require("../models/group.model");
 const { HTTPStatusCode } = require("../constants");
 const Supplier = require("../models/supplier.model");
@@ -103,6 +104,16 @@ const biddingController = {
   deleteBidding: async (req, res) => {
     try {
       const supllyId = req.params.id;
+      // Check allow delete
+      const supplyFind = await Bidding.findById(supllyId);
+      const checkExistStore = await Store.findOne({
+        code: supplyFind.code,
+      });
+      if (checkExistStore) {
+        return res
+          .status(HTTPStatusCode.BAD_REQUEST)
+          .json("Supply being used, can't delete");
+      }
       const supplyDel = await Bidding.findByIdAndDelete(supllyId);
       return res.status(HTTPStatusCode.OK).json(supplyDel);
     } catch (err) {

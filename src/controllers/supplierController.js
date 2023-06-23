@@ -1,5 +1,7 @@
 const { HTTPStatusCode } = require("../constants");
 const Supplier = require("../models/supplier.model");
+const Bidding = require("../models/bidding.model");
+const Store = require("../models/store.model");
 
 const supplierController = {
   createSupplier: async (req, res) => {
@@ -67,6 +69,19 @@ const supplierController = {
   deleteSupplier: async (req, res) => {
     try {
       const { id } = req.params;
+      // Check allow delete
+      const checkExistBidding = await Bidding.findOne({ company: id });
+      if (checkExistBidding) {
+        return res
+          .status(HTTPStatusCode.BAD_REQUEST)
+          .json("Company is being used, so you can't not delete it");
+      }
+      const checkExistStore = await Store.findOne({ company: id });
+      if (checkExistStore) {
+        return res
+          .status(HTTPStatusCode.BAD_REQUEST)
+          .json("Company is being used, so you can't not delete it");
+      }
       const delSupplier = await Supplier.findByIdAndDelete(id, {
         returnOriginal: true,
       });

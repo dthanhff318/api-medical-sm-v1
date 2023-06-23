@@ -132,10 +132,23 @@ const storeController = {
   deleteOneSupply: async (req, res) => {
     try {
       const { id } = req.params;
+      const listStoreDepart = await StoreDepart.find({});
+      const totalStoreDepart = listStoreDepart.reduce((acc, cur) => {
+        return [...acc, ...cur.data];
+      }, []);
+      const checkExistInStoreDepart = totalStoreDepart.find(
+        (e) => e.supply === Number(id)
+      );
+      if (checkExistInStoreDepart) {
+        return res
+          .status(HTTPStatusCode.BAD_REQUEST)
+          .json("Supply being used in some department, can't delete");
+      }
       const supplyDeleted = await Store.findByIdAndDelete(id);
       if (!supplyDeleted) {
         return res.status(HTTPStatusCode.NOT_FOUND).json("Not found supply");
       }
+
       return res.status(HTTPStatusCode.OK).json();
     } catch (err) {
       console.log(err);

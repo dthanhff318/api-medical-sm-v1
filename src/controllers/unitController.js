@@ -1,6 +1,8 @@
 const Unit = require("../models/unit.model");
 const { pickQuery } = require("../utilities/func");
 const { HTTPStatusCode } = require("../constants");
+const Bidding = require("../models/bidding.model");
+const Store = require("../models/store.model");
 
 const unitController = {
   createUnit: async (req, res) => {
@@ -53,6 +55,18 @@ const unitController = {
   deleteUnit: async (req, res) => {
     const { id } = req.params;
     // Check allow delete
+    const checkExistBidding = await Bidding.findOne({ unit: id });
+    if (checkExistBidding) {
+      return res
+        .status(HTTPStatusCode.BAD_REQUEST)
+        .json("Unit is used, so you can't not delete it");
+    }
+    const checkExistStore = await Store.findOne({ unit: id });
+    if (checkExistStore) {
+      return res
+        .status(HTTPStatusCode.BAD_REQUEST)
+        .json("Unit is used, so you can't not delete it");
+    }
     await Unit.findByIdAndDelete(id);
     return res.status(HTTPStatusCode.OK).json();
   },
