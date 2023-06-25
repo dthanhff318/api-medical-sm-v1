@@ -5,6 +5,7 @@ const Department = require("../models/department.model");
 const Supplier = require("../models/supplier.model");
 const Group = require("../models/group.model");
 const Unit = require("../models/unit.model");
+const HistoryBidding = require("../models/historyBidding.model");
 
 const serviceController = {
   getCommonData: async (req, res) => {
@@ -47,6 +48,19 @@ const serviceController = {
         units,
         suppliers,
       });
+    } catch (err) {
+      console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
+  getAnalysis: async (req, res) => {
+    try {
+      const { year } = req.body;
+      const listImportStore = await HistoryBidding.find({});
+      const filterDataByYear = listImportStore.filter((e) =>
+        e.createdTime.split("-").includes(year)
+      );
+      return res.status(HTTPStatusCode.OK).json(filterDataByYear);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);

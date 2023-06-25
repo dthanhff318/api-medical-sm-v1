@@ -6,10 +6,7 @@ reportRoute.post(
   "/export-department",
   reportController.getReportExportToDepartment
 );
-reportRoute.post(
-  "/refund-department",
-  reportController.getReportRefundFromDepartment
-);
+reportRoute.post("/refund-department", reportController.getReportImport);
 reportRoute.post("/inventory-store", reportController.getReportInventory);
 
 module.exports = reportRoute;

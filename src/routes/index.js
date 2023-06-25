@@ -12,6 +12,7 @@ const notiRoute = require("./notiRoute");
 const reportRoute = require("./reportRoute");
 const unitRoute = require("./unitRoute");
 const groupRoute = require("./groupRoute");
+const debtRoute = require("./debtRoute");
 
 apiV1.use("/auth", authRoute);
 apiV1.use("/user", userRoute);
@@ -25,5 +26,6 @@ apiV1.use("/noti", notiRoute);
 apiV1.use("/report", reportRoute);
 apiV1.use("/unit", unitRoute);
 apiV1.use("/group", groupRoute);
+apiV1.use("/debt", debtRoute);
 
 module.exports = apiV1;

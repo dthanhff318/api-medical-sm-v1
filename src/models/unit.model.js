@@ -17,6 +17,7 @@ unitSchema.plugin(autoIncrement.plugin, "Unit", {
   model: "Unit",
   field: "_id",
   startAt: 1,
+  incrementBy: 1,
 });
 
 const Unit = mongoose.model("Unit", unitSchema);

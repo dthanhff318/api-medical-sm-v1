@@ -80,31 +80,23 @@ const reportController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
-  getReportRefundFromDepartment: async (req, res) => {
+  getReportImport: async (req, res) => {
     try {
-      const { timeRange, department, typePlan, group } = req.body;
+      const { timeRange, group } = req.body;
       for (const g of group) {
         const checkAvailableGroup = await Group.findById(g);
         if (!checkAvailableGroup) {
           return res.status(HTTPStatusCode.NOT_FOUND).json("Group not found");
         }
       }
-      for (const d of department) {
-        const checkAvailableDepartment = await Department.findById(d);
-        if (!checkAvailableDepartment) {
-          return res
-            .status(HTTPStatusCode.NOT_FOUND)
-            .json("Department not found");
-        }
-      }
+
       const startDate = moment(timeRange[0], "DD MM YY");
       const endDate = moment(timeRange[1], "DD MM YY");
       const listTicket = await Plan.find({
-        department: { $in: department },
-        typePlan: { $in: typePlan },
+        typePlan: { $in: [3, 4] },
         isAccepted: true,
       });
-      const historyExport = listTicket
+      const historyImport = listTicket
         .filter((e) => {
           const timeSend = moment(e.createdTime, "DD MMM YYYY");
           return timeSend.isBetween(startDate, endDate);
@@ -120,35 +112,48 @@ const reportController = {
           return acc;
         }, []);
 
-      const listSupply = await Store.find({})
-        .populate({
-          path: "company",
-          model: "Supplier",
-          select: "name",
+      const listFromBidding = await HistoryBidding.find({});
+      const listFromBiddingFilterTime = listFromBidding
+        .filter((e) => {
+          const timeSend = moment(e.createdTime, "DD MM YYYY");
+          return timeSend.isBetween(startDate, endDate);
         })
-        .populate({
-          path: "group",
-          model: "Group",
-          select: "name",
-        })
-        .populate({
-          path: "unit",
-          model: "Unit",
-          select: "name",
-        });
-      const historyExportDetail = historyExport.map((e) => {
-        const findSupplyStore = listSupply.find((d) => d._id === e.id);
+        .reduce((acc, cur) => [...acc, ...cur.data], [])
+        .reduce((acc, cur) => {
+          const exist = acc.find((a) => a.code === cur.code);
+          if (exist) {
+            exist.quantity += cur.quantity;
+          } else {
+            acc.push(cur);
+          }
+          return acc;
+        }, []);
+      const listSupply = await Store.find({});
+      const historyImportDetail = historyImport.map((e) => {
+        const findSupplyStore = listSupply.find((d) => d.id == e.id);
         if (!findSupplyStore) {
           return {};
         }
         const { _id, yearBidding, __v, codeBidding, ...rest } =
           findSupplyStore._doc;
-        return { ...rest, id: e.id, quantityExpect: e.quantity };
+        return { ...rest, id: e.id, quantityImport: e.quantity };
       });
-      const historyExportFilterByGroup = historyExportDetail.filter((e) =>
-        group.includes(e.group._id)
+      listFromBiddingFilterTime.forEach((q) => {
+        const exist = historyImportDetail.find((x) => x.code == q.code);
+        if (exist) {
+          exist.quantityImport = exist.quantityImport + q.quantity;
+        } else {
+          historyImportDetail.push({
+            ...q,
+            quantityImport: q.quantity,
+          });
+        }
+      });
+
+      const historyImportFilterByGroup = historyImportDetail.filter((e) =>
+        group.includes(e.group)
       );
-      return res.status(HTTPStatusCode.OK).json(historyExportFilterByGroup);
+      return res.status(HTTPStatusCode.OK).json(historyImportFilterByGroup);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
@@ -177,10 +182,6 @@ const reportController = {
           return timeSend.isBetween(startDate, endDate);
         })
         .reduce((acc, cur) => [...acc, ...cur.data], [])
-        // .map((x) => ({
-        //   code: x.code,
-        //   quantity: x.quantity,
-        // }))
         .reduce((acc, cur) => {
           const exist = acc.find((a) => a.code === cur.code);
           if (exist) {

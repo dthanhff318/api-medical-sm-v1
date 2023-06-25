@@ -36,6 +36,7 @@ const biddingSchema = new mongoose.Schema({
   },
   company: {
     type: Number,
+    ref: "Supplier",
     required: true,
   },
   country: {

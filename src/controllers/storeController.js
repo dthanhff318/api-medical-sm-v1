@@ -98,6 +98,7 @@ const storeController = {
         data: add,
         type: "export",
         createdTime: moment(new Date().now).format("DD-MM-YYYY"),
+        codeBill,
       });
       await historyBiddingExport.save();
       return res.status(HTTPStatusCode.OK).json("OK");
@@ -175,12 +176,16 @@ const storeController = {
         path: "data.supply",
         model: "Store",
         select: "-quantity",
-        populate: {
-          path: "company",
-          model: "Supplier",
-          select: "name",
-        },
+        populate: [
+          {
+            path: "company",
+            model: "Supplier",
+          },
+          { path: "unit", model: "Unit" },
+          { path: "group", model: "Group" },
+        ],
       });
+
       const mappingData = storeDepartment.data
         .map((d) => {
           if (!d.supply._id) {
@@ -190,7 +195,6 @@ const storeController = {
           delete d.supply._doc._id;
           return {
             ...d.supply._doc,
-            company: d.supply.company.name,
             quantity: d.quantity,
             id,
           };

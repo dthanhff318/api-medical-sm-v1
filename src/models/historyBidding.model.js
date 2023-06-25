@@ -20,6 +20,10 @@ const historyBiddingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  codeBill: {
+    type: String,
+    required: true,
+  },
 });
 
 autoIncrement.initialize(mongoose.connection);
