@@ -24,6 +24,11 @@ const historyBiddingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isDone: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 });
 
 autoIncrement.initialize(mongoose.connection);
