@@ -5,7 +5,12 @@ const Department = require("../models/department.model");
 const Supplier = require("../models/supplier.model");
 const Group = require("../models/group.model");
 const Unit = require("../models/unit.model");
+const Plan = require("../models/plan.model");
 const HistoryBidding = require("../models/historyBidding.model");
+const {
+  getTotalQuantityByMonth,
+  getTotalQuantityExportByMonth,
+} = require("../utilities/func");
 
 const serviceController = {
   getCommonData: async (req, res) => {
@@ -60,7 +65,27 @@ const serviceController = {
       const filterDataByYear = listImportStore.filter((e) =>
         e.createdTime.split("-").includes(year)
       );
-      return res.status(HTTPStatusCode.OK).json(filterDataByYear);
+
+      const dataFlowMonth = [];
+      for (let i = 0; i < 12; i++) {
+        dataFlowMonth.push({
+          month: `Tháng ${i + 1}`,
+          quantity: getTotalQuantityByMonth(
+            filterDataByYear,
+            String(i + 1).padStart(2, "0")
+          ),
+        });
+      }
+
+      const listTicketExport = await Plan.find({ typePlan: { $in: [1, 2] } });
+      const filterTicketExportByYear = listTicketExport.filter((e) =>
+        e.createdTime.split(" ").includes(year)
+      );
+      const data = getTotalQuantityExportByMonth(
+        filterTicketExportByYear,
+        "06"
+      );
+      return res.status(HTTPStatusCode.OK).json(data);
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
