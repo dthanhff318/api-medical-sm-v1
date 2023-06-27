@@ -24,12 +24,21 @@ const getTotalQuantityExportByMonth = (data, month) => {
     .filter((e) => e.createdTime.split("-")[1] === month)
     .reduce((acc, cur) => [...acc, ...cur.planList], [])
     .reduce((total, cur) => (total += cur.quantity), 0);
-  console.log(newList.filter((e) => e.createdTime.split("-")[1] === month));
   return quanityMonth;
+};
+
+const getTotalQuantityByMonthByGroup = (data, month, group) => {
+  const quanity = data
+    .filter((e) => e.createdTime.split("-")[1] === month)
+    .reduce((acc, cur) => [...acc, ...cur.data], [])
+    .filter((e) => e.group === group)
+    .reduce((total, cur) => (total += cur.quantity), 0);
+  return quanity;
 };
 
 module.exports = {
   pickQuery,
   getTotalQuantityByMonth,
   getTotalQuantityExportByMonth,
+  getTotalQuantityByMonthByGroup,
 };

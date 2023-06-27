@@ -10,6 +10,7 @@ const HistoryBidding = require("../models/historyBidding.model");
 const {
   getTotalQuantityByMonth,
   getTotalQuantityExportByMonth,
+  getTotalQuantityByMonthByGroup,
 } = require("../utilities/func");
 
 const serviceController = {
@@ -61,6 +62,7 @@ const serviceController = {
   getAnalysis: async (req, res) => {
     try {
       const { year } = req.body;
+      const listGroup = await Group.find({});
       const listImportStore = await HistoryBidding.find({});
       const filterDataByYear = listImportStore.filter((e) =>
         e.createdTime.split("-").includes(year)
@@ -81,11 +83,52 @@ const serviceController = {
       const filterTicketExportByYear = listTicketExport.filter((e) =>
         e.createdTime.split(" ").includes(year)
       );
-      const data = getTotalQuantityExportByMonth(
-        filterTicketExportByYear,
-        "06"
-      );
-      return res.status(HTTPStatusCode.OK).json(data);
+
+      const dataExportFlowMonth = [];
+      for (let i = 0; i < 12; i++) {
+        dataExportFlowMonth.push({
+          month: `Tháng ${i + 1}`,
+          quantity: getTotalQuantityExportByMonth(
+            filterTicketExportByYear,
+            String(i + 1).padStart(2, "0")
+          ),
+        });
+      }
+      // Detail
+      const dataImportDetail = [];
+      for (const g of listGroup) {
+        console.log(g);
+        for (let i = 0; i < 12; i++) {
+          dataImportDetail.push({
+            month: `Tháng ${i + 1}`,
+            quantity: getTotalQuantityByMonthByGroup(
+              filterDataByYear,
+              String(i + 1).padStart(2, "0"),
+              g._id
+            ),
+            group: g.name,
+          });
+        }
+      }
+      // Classify
+      const dataGroupClassify = [];
+      for (const s of listGroup) {
+        const listFilterByGroup = await Store.find({ group: s.id });
+        const count = listFilterByGroup.reduce(
+          (acc, cur) => (acc += cur.quantity),
+          0
+        );
+        dataGroupClassify.push({
+          count,
+          name: s.name,
+        });
+      }
+      return res.status(HTTPStatusCode.OK).json({
+        // dataImport: dataFlowMonth,
+        // dataExport: dataExportFlowMonth,
+        // dataGroupClassify,
+        dataImportDetail,
+      });
     } catch (err) {
       console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
