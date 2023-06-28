@@ -11,6 +11,7 @@ const {
   getTotalQuantityByMonth,
   getTotalQuantityExportByMonth,
   getTotalQuantityByMonthByGroup,
+  getTotalQuantityExportByMonthByGroup,
 } = require("../utilities/func");
 
 const serviceController = {
@@ -64,6 +65,27 @@ const serviceController = {
       const { year } = req.body;
       const listGroup = await Group.find({});
       const listImportStore = await HistoryBidding.find({});
+      const listTicketExport = await Plan.find({ typePlan: { $in: [1, 2] } });
+
+      const listSupply = await Store.find({}).populate({
+        path: "company",
+        model: "Supplier",
+        select: "name",
+      });
+
+      const listDetailPlan = listTicketExport.map((e) =>
+        e.planList.map((e) => {
+          const findSupplyStore = listSupply.find((d) => d._id === e.id);
+          if (!findSupplyStore) {
+            return {};
+          }
+          const { _id, yearBidding, __v, codeBidding, ...rest } =
+            findSupplyStore._doc;
+          return { ...rest, id: e.id, quantityExpect: e.quantity };
+        })
+      );
+
+      console.log(listDetailPlan);
       const filterDataByYear = listImportStore.filter((e) =>
         e.createdTime.split("-").includes(year)
       );
@@ -79,7 +101,6 @@ const serviceController = {
         });
       }
 
-      const listTicketExport = await Plan.find({ typePlan: { $in: [1, 2] } });
       const filterTicketExportByYear = listTicketExport.filter((e) =>
         e.createdTime.split(" ").includes(year)
       );
@@ -96,8 +117,23 @@ const serviceController = {
       }
       // Detail
       const dataImportDetail = [];
+      const dataExportDetail = [];
+
       for (const g of listGroup) {
-        console.log(g);
+        for (let i = 0; i < 12; i++) {
+          dataExportDetail.push({
+            month: `Tháng ${i + 1}`,
+            quantity: getTotalQuantityExportByMonthByGroup(
+              listDetailPlan,
+              String(i + 1).padStart(2, "0"),
+              g._id
+            ),
+            group: g.name,
+            type: "Nhap",
+          });
+        }
+      }
+      for (const g of listGroup) {
         for (let i = 0; i < 12; i++) {
           dataImportDetail.push({
             month: `Tháng ${i + 1}`,
@@ -107,6 +143,7 @@ const serviceController = {
               g._id
             ),
             group: g.name,
+            type: "Xuat",
           });
         }
       }
@@ -124,10 +161,11 @@ const serviceController = {
         });
       }
       return res.status(HTTPStatusCode.OK).json({
-        // dataImport: dataFlowMonth,
-        // dataExport: dataExportFlowMonth,
-        // dataGroupClassify,
+        dataImport: dataFlowMonth,
+        dataExport: dataExportFlowMonth,
+        dataGroupClassify,
         dataImportDetail,
+        dataExportDetail,
       });
     } catch (err) {
       console.log(err);
