@@ -73,19 +73,32 @@ const serviceController = {
         select: "name",
       });
 
-      const listDetailPlan = listTicketExport.map((e) =>
-        e.planList.map((e) => {
-          const findSupplyStore = listSupply.find((d) => d._id === e.id);
-          if (!findSupplyStore) {
-            return {};
-          }
-          const { _id, yearBidding, __v, codeBidding, ...rest } =
-            findSupplyStore._doc;
-          return { ...rest, id: e.id, quantityExpect: e.quantity };
-        })
-      );
+      const listDetailPlan = listTicketExport
+        .map((e) => ({
+          ...e._doc,
+          createdTime: moment(e.createdTime, "DD MMM YYYY").format(
+            "DD-MM-YYYY"
+          ),
+        }))
+        .filter((e) => e.createdTime.split("-").includes(year))
+        .map((x) =>
+          x.planList.map((e) => {
+            const findSupplyStore = listSupply.find((d) => d._id === e.id);
+            if (!findSupplyStore) {
+              return {};
+            }
+            const { _id, yearBidding, __v, codeBidding, ...rest } =
+              findSupplyStore._doc;
+            return {
+              ...rest,
+              id: e.id,
+              quantityExpect: e.quantity,
+              createdTime: x.createdTime,
+            };
+          })
+        )
+        .reduce((acc, cur) => [...acc, ...cur], []);
 
-      console.log(listDetailPlan);
       const filterDataByYear = listImportStore.filter((e) =>
         e.createdTime.split("-").includes(year)
       );
@@ -118,7 +131,6 @@ const serviceController = {
       // Detail
       const dataImportDetail = [];
       const dataExportDetail = [];
-
       for (const g of listGroup) {
         for (let i = 0; i < 12; i++) {
           dataExportDetail.push({
@@ -129,7 +141,7 @@ const serviceController = {
               g._id
             ),
             group: g.name,
-            type: "Nhap",
+            type: "Xuất",
           });
         }
       }
@@ -143,7 +155,7 @@ const serviceController = {
               g._id
             ),
             group: g.name,
-            type: "Xuat",
+            type: "Nhập",
           });
         }
       }
