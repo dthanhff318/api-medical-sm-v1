@@ -50,10 +50,12 @@ const serviceController = {
       const groups = await Group.find({});
       const units = await Unit.find({});
       const suppliers = await Supplier.find({});
+      const departments = await Department.find({});
       return res.status(HTTPStatusCode.OK).json({
         groups,
         units,
         suppliers,
+        departments,
       });
     } catch (err) {
       console.log(err);

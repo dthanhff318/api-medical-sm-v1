@@ -26,20 +26,19 @@ app.use("/v1", apiV1);
 connect();
 
 io.on("connection", (socket) => {
-  socket.emit("hi", 123);
-  socket.on("disconnect", () => {
-    // console.log("user disconnected");
-    // disconectTimeout = setTimeout(() => {
-    //   console.log("User disconect the server");
-    // }, 3000);
-  });
+  socket.on("disconnect", () => {});
 
   socket.on("connect", () => {
     console.log("One user reconnect");
-    // clearTimeout(disconectTimeout);
   });
+  socket.on("sendPlan", (data) => socket.broadcast.emit("sendPlan", data));
+  socket.on("acceptTicket", (data) =>
+    socket.broadcast.emit("acceptTicket", data)
+  );
 });
 
 httpServer.listen(process.env.PORT, process.env.BASE_URL, async () => {
   console.log("Server is running in Port 4000");
 });
+
+global.io = io;

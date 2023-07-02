@@ -42,9 +42,16 @@ const notiController = {
     if (!findNoti) {
       return;
     }
-    const updateStatusNoti = await Noti.findByIdAndUpdate(idNoti, {
-      seen: true,
-      new: true,
+    const updateStatusNoti = await Noti.findByIdAndUpdate(
+      idNoti,
+      {
+        seen: true,
+      },
+      { new: true }
+    ).populate({
+      path: "department",
+      model: "Department",
+      select: "name",
     });
 
     return res.status(HTTPStatusCode.OK).json(updateStatusNoti);
