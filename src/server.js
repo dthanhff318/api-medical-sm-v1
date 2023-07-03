@@ -12,7 +12,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*",
     credentials: true,
   },
 });
@@ -32,9 +32,10 @@ io.on("connection", (socket) => {
     console.log("One user reconnect");
   });
   socket.on("sendPlan", (data) => socket.broadcast.emit("sendPlan", data));
-  socket.on("acceptTicket", (data) =>
-    socket.broadcast.emit("acceptTicket", data)
-  );
+  socket.on("acceptTicket", (data) => {
+    console.log(data);
+    socket.broadcast.emit("acceptTicket", data);
+  });
 });
 
 httpServer.listen(process.env.PORT, process.env.BASE_URL, async () => {

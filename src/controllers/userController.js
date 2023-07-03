@@ -5,6 +5,28 @@ const { HTTPStatusCode } = require("../constants");
 const { sendUserRegistrationInfo } = require("../services/email.services");
 
 const userController = {
+  createStaff: async (req, res) => {
+    try {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(req.body.password, salt);
+      const checkUsername = await User.findOne({ username: req.body.username });
+      if (checkUsername) {
+        return res
+          .status(HTTPStatusCode.INTERNAL_SERVER_ERROR)
+          .json("Username already taken");
+      }
+      const newUser = new User({
+        ...req.body,
+        password: hashedPassword,
+      });
+      const user = await newUser.save();
+      await sendUserRegistrationInfo(req.body);
+      return res.status(HTTPStatusCode.OK).json(user);
+    } catch (err) {
+      console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
   createUser: async (req, res) => {
     try {
       const salt = await bcrypt.genSalt(10);
