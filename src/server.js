@@ -42,7 +42,11 @@ io.on("connection", (socket) => {
 //   console.log("Server is running in Port 4000");
 // });
 
-httpServer.listen(4000, "192.168.2.14", async () => {
+// httpServer.listen(4000, "192.168.2.14", async () => {
+//   console.log("Server is running in Port 4000");
+// });
+
+httpServer.listen(4000, "localhost", async () => {
   console.log("Server is running in Port 4000");
 });
 
