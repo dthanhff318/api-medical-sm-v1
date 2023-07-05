@@ -64,13 +64,27 @@ const userController = {
     const delUser = await User.findByIdAndDelete(userId, {
       returnOriginal: true,
     });
-    await Department.updateOne(
-      { _id: delUser.department },
-      {
-        $pull: { member: delUser.id },
-      }
-    );
+    if (delUser.department) {
+      await Department.updateOne(
+        { _id: delUser.department },
+        {
+          $pull: { member: delUser.id },
+        }
+      );
+    }
     return res.status(HTTPStatusCode.OK).json(delUser);
+  },
+  getStaffList: async (req, res) => {
+    try {
+      const { q = "" } = req.query;
+      const listStaff = await User.find({
+        role: { $in: ["staff-accept", "staff-report"] },
+        displayName: { $regex: q, $options: "i" },
+      });
+      return res.status(HTTPStatusCode.OK).json(listStaff);
+    } catch (err) {
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
   },
 };
 

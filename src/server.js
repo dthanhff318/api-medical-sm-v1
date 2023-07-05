@@ -38,7 +38,11 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(process.env.PORT, process.env.BASE_URL, async () => {
+// httpServer.listen(process.env.PORT, process.env.BASE_URL, async () => {
+//   console.log("Server is running in Port 4000");
+// });
+
+httpServer.listen(4000, "192.168.2.14", async () => {
   console.log("Server is running in Port 4000");
 });
 
