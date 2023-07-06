@@ -8,7 +8,6 @@ const debtController = {
     try {
       const { timeRange, ...dataQuery } = req.body;
       const objQuery = pickQuery(dataQuery);
-      console.log(objQuery);
       const listDebt = await HistoryBidding.find({ ...objQuery });
       const startDate = moment(timeRange[0], "DD MM YY");
       const endDate = moment(timeRange[1], "DD MM YY");

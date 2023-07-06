@@ -8,5 +8,6 @@ reportRoute.post(
 );
 reportRoute.post("/import-department", reportController.getReportImport);
 reportRoute.post("/inventory-store", reportController.getReportInventory);
+reportRoute.post("/bidding", reportController.getReportBidding);
 
 module.exports = reportRoute;

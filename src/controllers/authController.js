@@ -37,7 +37,6 @@ const authControllers = {
   // register
   register: async (req, res) => {
     try {
-      console.log(req.body);
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(req.body.password, salt);
       const checkUsername = await User.findOne({ username: req.body.username });

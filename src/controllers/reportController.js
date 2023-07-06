@@ -113,6 +113,7 @@ const reportController = {
         }, []);
 
       const listFromBidding = await HistoryBidding.find({});
+
       const listFromBiddingFilterTime = listFromBidding
         .filter((e) => {
           const timeSend = moment(e.createdTime, "DD MM YYYY");
@@ -229,22 +230,7 @@ const reportController = {
           return acc;
         }, []);
 
-      const listSupply = await Store.find({})
-        .populate({
-          path: "company",
-          model: "Supplier",
-          select: "name",
-        })
-        .populate({
-          path: "group",
-          model: "Group",
-          select: "name",
-        })
-        .populate({
-          path: "unit",
-          model: "Unit",
-          select: "name",
-        });
+      const listSupply = await Store.find({});
 
       const historyExportDetail = historyExport.map((e) => {
         const findSupplyStore = listSupply.find((d) => d._id === e.id);
@@ -296,13 +282,39 @@ const reportController = {
           });
         }
       });
-      console.log(mappingExport);
       const historyInventoryFilterByGroup = mappingExport.filter((e) =>
         group.includes(e.group._id || e.group)
       );
       return res.status(HTTPStatusCode.OK).json(historyInventoryFilterByGroup);
     } catch (err) {
       console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
+  getReportBidding: async (req, res) => {
+    const { timeRange, group } = req.body;
+    try {
+      const startDate = moment(timeRange[0], "DD MM YY");
+      const endDate = moment(timeRange[1], "DD MM YY");
+      const listBidding = await HistoryBidding.find({});
+      const listBiddingFilterTime = listBidding
+        .filter((e) => {
+          const timeSend = moment(e.createdTime, "DD MM YYYY");
+          return timeSend.isBetween(startDate, endDate);
+        })
+        .reduce((acc, cur) => [...acc, ...cur.data], [])
+        .reduce((acc, cur) => {
+          const exist = acc.find((a) => a.code === cur.code);
+          if (exist) {
+            exist.quantity += cur.quantity;
+            exist.totalPrice += cur.totalPrice;
+          } else {
+            acc.push(cur);
+          }
+          return acc;
+        }, []);
+      return res.status(HTTPStatusCode.OK).json(listBiddingFilterTime);
+    } catch (err) {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },

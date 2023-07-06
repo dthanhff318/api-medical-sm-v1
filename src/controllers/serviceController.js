@@ -27,7 +27,7 @@ const serviceController = {
         dateExpired: { $ne: "" },
       });
       const listSupplyWillExpired = listSupply.filter((s) => {
-        const expiredDate = moment(s.dateExpired, "MMM DD[th] YY");
+        const expiredDate = moment(s.dateExpired, "MM DD YY");
         const now = moment();
         const diffDays = -now.diff(expiredDate, "days");
         return diffDays < day;
