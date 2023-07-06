@@ -312,7 +312,8 @@ const reportController = {
             acc.push(cur);
           }
           return acc;
-        }, []);
+        }, [])
+        .filter((e) => group.includes(e.group));
       return res.status(HTTPStatusCode.OK).json(listBiddingFilterTime);
     } catch (err) {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);

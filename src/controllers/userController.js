@@ -86,6 +86,19 @@ const userController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
+
+  getStaffByDepartment: async (req, res) => {
+    try {
+      const { department } = req.body;
+      const findDepartment = await Department.findById(department).populate({
+        path: "member",
+        modal: "User",
+      });
+      return res.status(HTTPStatusCode.OK).json(findDepartment);
+    } catch (err) {
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
 };
 
 module.exports = userController;

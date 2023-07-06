@@ -5,6 +5,7 @@ const pickQuery = (objQuery) =>
     if (q[1]) {
       return { ...qrObj, [q[0]]: q[1] };
     }
+    return qrObj;
   }, {});
 
 const getTotalQuantityByMonth = (data, month) => {

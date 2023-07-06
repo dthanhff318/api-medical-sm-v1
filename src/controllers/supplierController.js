@@ -57,6 +57,7 @@ const supplierController = {
         if (q[1]) {
           return { ...qrObj, [q[0]]: q[1] };
         }
+        return qrObj;
       }, {});
       const supplierUpdated = await Supplier.findByIdAndUpdate(id, dataUpdate, {
         new: true,
