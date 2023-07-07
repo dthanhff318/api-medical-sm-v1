@@ -26,6 +26,8 @@ const authControllers = {
         displayName: findUser.displayName,
         role: findUser.role,
         department: findUser.department,
+        email: findUser.email,
+        photo: findUser.photo,
       };
       const accessToken = genAccessToken(dataUser);
       const refreshToken = genRefreshToken(dataUser);
@@ -72,8 +74,8 @@ const authControllers = {
     try {
       const refreshTk = req.body.refresh;
       const decodeTokenValue = await decodeToken(refreshTk, false);
-      const accessToken = genAccessToken(decodeTokenValue.uid);
-      const refreshToken = genRefreshToken(decodeTokenValue.uid);
+      const accessToken = genAccessToken(decodeTokenValue.data);
+      const refreshToken = genRefreshToken(decodeTokenValue.data);
       return res.status(HTTPStatusCode.OK).json({
         accessToken,
         refreshToken,
