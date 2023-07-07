@@ -20,7 +20,7 @@ const unitController = {
       return res.status(HTTPStatusCode.OK).json(unit);
     } catch (err) {
       console.log(err);
-      return res.status(HTTPStatusCode.OK).json(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
   getUnits: async (req, res) => {

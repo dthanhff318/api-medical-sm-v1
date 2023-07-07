@@ -13,6 +13,7 @@ const reportRoute = require("./reportRoute");
 const unitRoute = require("./unitRoute");
 const groupRoute = require("./groupRoute");
 const debtRoute = require("./debtRoute");
+const uploadRoute = require("./uploadRoute");
 
 apiV1.use("/auth", authRoute);
 apiV1.use("/user", userRoute);
@@ -27,5 +28,6 @@ apiV1.use("/report", reportRoute);
 apiV1.use("/unit", unitRoute);
 apiV1.use("/group", groupRoute);
 apiV1.use("/debt", debtRoute);
+apiV1.use("/upload", uploadRoute);
 
 module.exports = apiV1;

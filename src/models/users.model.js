@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema({
     default: "user",
     required: true,
   },
+  photo: {
+    type: String,
+    default: null,
+  },
 });
 userSchema.plugin(toJSON);
 userSchema.plugin(autoIncrement.plugin, "User", {

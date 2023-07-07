@@ -79,7 +79,18 @@ const authControllers = {
         refreshToken,
       });
     } catch (err) {
-      console.log(err);
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
+  getCurrentUser: async (req, res) => {
+    try {
+      const idUser = req.infoUser.data.id;
+      const user = await User.findById(idUser);
+      const { username, password, __v, _id, ...userInfo } = user._doc;
+      userInfo.id = Number(idUser);
+      return res.status(HTTPStatusCode.OK).json(userInfo);
+    } catch (err) {
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
 };
