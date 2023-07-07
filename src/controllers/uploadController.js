@@ -5,6 +5,7 @@ const uploadController = {
   uploadAvatarImage: async (req, res) => {
     try {
       const { data } = req.infoUser;
+      console.log(req.file);
       const updateAvtUser = await User.findByIdAndUpdate(
         data.id,
         {
@@ -17,6 +18,7 @@ const uploadController = {
       updateInfo.id = Number(data.id);
       return res.status(HTTPStatusCode.OK).json(updateInfo);
     } catch (err) {
+      console.log(err);
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
