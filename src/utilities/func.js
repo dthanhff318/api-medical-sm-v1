@@ -44,10 +44,17 @@ const getTotalQuantityExportByMonthByGroup = (data, month, group) => {
     .reduce((total, cur) => (total += cur.quantity), 0);
   return quanityMonth;
 };
+
+const getPublicIdFromUrlCloud = (imageUrl) => {
+  const urlParts = imageUrl.split("/");
+  const publicId = urlParts[urlParts.length - 1].split(".")[0];
+  return publicId;
+};
 module.exports = {
   pickQuery,
   getTotalQuantityByMonth,
   getTotalQuantityExportByMonth,
   getTotalQuantityByMonthByGroup,
   getTotalQuantityExportByMonthByGroup,
+  getPublicIdFromUrlCloud,
 };

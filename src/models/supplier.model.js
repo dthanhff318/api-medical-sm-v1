@@ -24,6 +24,10 @@ const supplierSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  photo: {
+    type: String,
+    default: null,
+  },
 });
 
 autoIncrement.initialize(mongoose.connection);

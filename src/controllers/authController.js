@@ -81,7 +81,7 @@ const authControllers = {
         refreshToken,
       });
     } catch (err) {
-      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+      return res.status(HTTPStatusCode.UNAUTHORIZED).json(err);
     }
   },
   getCurrentUser: async (req, res) => {

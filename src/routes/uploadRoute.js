@@ -11,4 +11,10 @@ uploadRoute.post(
   uploadController.uploadAvatarImage
 );
 
+uploadRoute.post(
+  "/supplier/:id",
+  uploadServices.uploadFile("file"),
+  uploadController.uploadSupplierImage
+);
+
 module.exports = uploadRoute;

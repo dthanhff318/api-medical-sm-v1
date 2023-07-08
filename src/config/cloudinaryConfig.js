@@ -10,12 +10,20 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  allowedFormats: ["jpg", "png"],
+  allowedFormats: ["jpg", "png", "jpeg"],
   filename: function (req, file, cb) {
     cb(null, file.originalname);
   },
 });
 
+const deleteImage = async (publicId) => {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const uploadCloud = multer({ storage });
 
-module.exports = uploadCloud;
+module.exports = { uploadCloud, deleteImage };
