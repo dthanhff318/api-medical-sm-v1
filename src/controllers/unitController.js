@@ -27,7 +27,7 @@ const unitController = {
     const { q = "", page = 1, limit = 10 } = req.query;
     const calculatePage = (page - 1) * limit;
     const units = await Unit.find({
-      name: { $regex: q, $options: "i" },
+      name: { $: q, $options: "i" },
     })
       .skip(calculatePage)
       .limit(Number(limit));

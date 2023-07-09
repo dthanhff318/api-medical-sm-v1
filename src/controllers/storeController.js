@@ -96,7 +96,7 @@ const storeController = {
       }
       const historyBiddingExport = new HistoryBidding({
         data: add,
-        type: "export",
+        type: "import",
         createdTime: moment(new Date().now).format("DD-MM-YYYY"),
         codeBill,
       });

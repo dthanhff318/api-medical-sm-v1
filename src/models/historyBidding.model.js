@@ -13,7 +13,7 @@ const historyBiddingSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ["import", "export"],
-    default: "export",
+    default: "import",
     required: true,
   },
   createdTime: {

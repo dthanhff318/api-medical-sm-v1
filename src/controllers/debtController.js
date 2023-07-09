@@ -6,13 +6,16 @@ const HistoryBidding = require("../models/historyBidding.model");
 const debtController = {
   getListDebt: async (req, res) => {
     try {
-      const { timeRange, ...dataQuery } = req.body;
+      const { timeRange, search = "", ...dataQuery } = req.body;
       const objQuery = pickQuery(dataQuery);
-      const listDebt = await HistoryBidding.find({ ...objQuery });
+      const listDebt = await HistoryBidding.find({
+        codeBill: { $regex: search, $options: "i" },
+        ...objQuery,
+      });
       const startDate = moment(timeRange[0], "DD MM YY");
       const endDate = moment(timeRange[1], "DD MM YY");
       const listDebtFilterTime = listDebt.filter((e) => {
-        const timeSend = moment(e.createdTime, "DD MMM YYYY");
+        const timeSend = moment(e.createdTime, "DD MM YYYY");
         return timeSend.isBetween(startDate, endDate);
       });
       return res.status(HTTPStatusCode.OK).json(listDebtFilterTime);
