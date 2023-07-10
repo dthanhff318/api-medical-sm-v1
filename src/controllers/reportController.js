@@ -319,6 +319,38 @@ const reportController = {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
     }
   },
+  getReportForDepartment: async (req, res) => {
+    try {
+      const { department, timeRange, type } = req.body;
+      const startDate = moment(timeRange[0], "DD MM YY");
+      const endDate = moment(timeRange[1], "DD MM YY");
+      let listTicket = [];
+      if (type === "all") {
+        listTicket = await Plan.find({ department, isAccepted: true });
+      }
+      if (type === "import") {
+        listTicket = await Plan.find({
+          department,
+          isAccepted: true,
+          type: { $in: [1, 2] },
+        });
+      }
+      if (type === "export") {
+        listTicket = await Plan.find({
+          department,
+          isAccepted: true,
+          type: { $in: [3, 4] },
+        });
+      }
+      const listTicketFilter = listTicket.filter((e) => {
+        const timeSend = moment(e.createdTime, "DD MMM YYYY");
+        return timeSend.isBetween(startDate, endDate);
+      });
+      return res.status(HTTPStatusCode.OK).json(listTicketFilter);
+    } catch (err) {
+      return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
 };
 
 module.exports = reportController;
