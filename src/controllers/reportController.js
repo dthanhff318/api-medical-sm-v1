@@ -332,20 +332,38 @@ const reportController = {
         listTicket = await Plan.find({
           department,
           isAccepted: true,
-          type: { $in: [1, 2] },
+          typePlan: { $in: [1, 2] },
         });
       }
       if (type === "export") {
         listTicket = await Plan.find({
           department,
           isAccepted: true,
-          type: { $in: [3, 4] },
+          typePlan: { $in: [3, 4] },
         });
       }
-      const listTicketFilter = listTicket.filter((e) => {
-        const timeSend = moment(e.createdTime, "DD MMM YYYY");
-        return timeSend.isBetween(startDate, endDate);
-      });
+      const listStore = await Store.find({});
+      const listTicketFilter = listTicket
+        .filter((e) => {
+          const timeSend = moment(e.createdTime, "DD MMM YYYY");
+          return timeSend.isBetween(startDate, endDate);
+        })
+        .reduce((acc, cur) => [...acc, ...cur.planList], [])
+        .map((e) => {
+          const findSuply = listStore.find(
+            (x) => Number(x.id) === Number(e.id)
+          );
+          return { ...findSuply._doc, quantity: e.quantity, id: e.id };
+        })
+        .reduce((acc, cur) => {
+          const exist = acc.find((a) => a.id === cur.id);
+          if (exist) {
+            exist.quantity += cur.quantity;
+          } else {
+            acc.push(cur);
+          }
+          return acc;
+        }, []);
       return res.status(HTTPStatusCode.OK).json(listTicketFilter);
     } catch (err) {
       return res.status(HTTPStatusCode.INTERNAL_SERVER_ERROR).json(err);
